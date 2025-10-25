@@ -1,52 +1,39 @@
-import { api, setCurrentUser, toastError, toastSuccess } from "./common.js";
+import { saveAuth } from './common.js';
 
-const form = document.getElementById("login-form");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const errorMessage = document.getElementById("login-error");
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('#login-form');
+  if (!form) return;
 
-function validate() {
-  let valid = true;
-  errorMessage.style.display = "none";
-  [emailInput, passwordInput].forEach((input) => {
-    const helper = document.querySelector(`.helper-text[data-for="${input.id}"]`);
-    if (!input.value) {
-      input.classList.add("error");
-      helper.textContent = "This field is required";
-      helper.style.display = "block";
-      toastError("Please fill in all required fields");
-      valid = false;
-    } else {
-      input.classList.remove("error");
-      helper.style.display = "none";
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const emailOrUsername = fd.get('email') || fd.get('username');
+    const payload = {
+      username: emailOrUsername,
+      email: emailOrUsername,
+      password: fd.get('password'),
+    };
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Invalid credentials');
+
+      // Expect JSON like: { token, user: { role: 'ADMIN' | 'CUSTOMER', ... } }
+      const data = await res.json();
+      saveAuth(data);
+
+      // If you need role-based routing keep it, but default to place-order for user
+      if (data?.user?.role === 'ADMIN') {
+        window.location.href = '/frontend/dashboard-admin.html';
+      } else {
+        window.location.href = '/frontend/place-order.html'; // ✅ new landing
+      }
+    } catch (err) {
+      alert(err.message || 'Login failed');
     }
   });
-  return valid;
-}
-
-form?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!validate()) return;
-
-  const payload = {
-    email: emailInput.value.trim(),
-    password: passwordInput.value.trim(),
-  };
-
-  try {
-    const user = await api.post("/api/auth/login", payload);
-    setCurrentUser(user);
-    toastSuccess(`Welcome back, ${user.name}!`);
-    setTimeout(() => {
-      if (user.role === "ADMIN") {
-        window.location.href = "dashboard-admin.html";
-      } else {
-        window.location.href = "dashboard-user.html";
-      }
-    }, 300);
-  } catch (error) {
-    errorMessage.textContent = error.message;
-    errorMessage.style.display = "block";
-    toastError(error.message);
-  }
 });

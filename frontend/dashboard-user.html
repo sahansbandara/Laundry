@@ -4,22 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartFold — Customer Portal</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/frontend/style.css" />
 </head>
 <body>
+  <style>
+    /* If these selectors exist, hide the legacy order card */
+    .legacy-place-order, #newOrderCard, [data-legacy-order-form] { display:none !important; }
+  </style>
   <header class="navbar">
     <div style="display:flex; align-items:center; gap:16px;">
       <h1 style="font-size:1.5rem;">SmartFold</h1>
       <nav style="display:flex; gap:12px;">
         <a href="#orders" class="btn" style="background:#1F3A8A;">My Orders</a>
         <a href="#messages" class="btn" style="background:#1F3A8A;">Messages</a>
+        <a href="/frontend/place-order.html" class="btn" style="background:#1F3A8A;">Place Order</a>
       </nav>
     </div>
     <button id="logout-user" style="background:#ef4444;">Logout</button>
   </header>
 
   <main style="padding:32px; max-width:1100px; margin:0 auto;">
-    <section class="card" id="new-order">
+    <a href="/frontend/place-order.html" class="btn-primary" style="display:inline-flex; align-items:center; gap:8px; margin-bottom:24px;">
+      Place New Order
+    </a>
+
+    <section class="card" id="new-order" data-legacy-order-form>
       <h2 class="card-title">Place New Order</h2>
       <form id="user-order-form" novalidate>
         <div class="form-row">
@@ -94,6 +103,6 @@
     </section>
   </main>
 
-  <script type="module" src="user.js"></script>
+  <script type="module" src="/frontend/user.js"></script>
 </body>
 </html>
