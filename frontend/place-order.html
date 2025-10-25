@@ -304,6 +304,7 @@
 
         .summary-row {
             display: flex;
+            align-items: flex-start;
             justify-content: space-between;
             align-items: center;
             font-size: 0.95rem;
@@ -327,7 +328,7 @@
             background: rgba(248, 250, 252, 0.8);
         }
 
-        .addon-option {
+        .summary-item-actions {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1031,7 +1032,13 @@
                 deliveryError.textContent = "";
             }
 
-            return isValid;
+            alert('Order placed successfully!');
+            document.getElementById('orderForm').reset();
+            orderItems.length = 0;
+            expressApplied = false;
+            renderSummary();
+            updateFormState();
+            setDateMinimums();
         }
 
         document.querySelectorAll(".service-card button").forEach((button) => {
@@ -1083,6 +1090,7 @@
             if (!datesValid) {
                 return;
             }
+        }
 
             alert("Order placed successfully!");
         });
