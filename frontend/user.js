@@ -131,6 +131,8 @@ async function mountPlaceOrderUI() {
         if (document.readyState !== "loading") {
             setTimeout(() => document.dispatchEvent(new Event("DOMContentLoaded")), 0);
         }
+
+        window.initPlaceOrder?.();
     } catch (err) {
         console.error(err);
         placeOrderMount.innerHTML = `<div class="alert alert-error">Failed to load Place Order UI</div>`;
