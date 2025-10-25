@@ -60,6 +60,8 @@ export const api = {
 };
 
 export function getCurrentUser() {
+  const auth = getAuth();
+  if (auth?.user) return auth.user;
   const raw = localStorage.getItem("user");
   if (!raw) return null;
   try {
@@ -70,22 +72,47 @@ export function getCurrentUser() {
 }
 
 export function setCurrentUser(user) {
-  localStorage.setItem("user", JSON.stringify(user));
+  if (user) {
+    localStorage.setItem("user", JSON.stringify(user));
+    const auth = getAuth() || {};
+    localStorage.setItem("auth", JSON.stringify({ ...auth, user }));
+  } else {
+    localStorage.removeItem("user");
+  }
 }
 
 export function clearCurrentUser() {
   localStorage.removeItem("user");
+  localStorage.removeItem("auth");
 }
 
 export function requireAuth(role) {
-  const user = getCurrentUser();
+  const auth = getAuth();
+  const user = auth?.user || getCurrentUser();
   if (!user) {
-    window.location.href = "login.html";
-    return;
+    window.location.href = "/frontend/login.html";
+    return null;
   }
-  if (role && user.role !== role) {
-    window.location.href = user.role === "ADMIN" ? "dashboard-admin.html" : "dashboard-user.html";
+
+  const redirect = user.role === "ADMIN"
+    ? "/frontend/dashboard-admin.html"
+    : "/frontend/dashboard-user.html";
+
+  if (role === "ADMIN" && user.role !== "ADMIN") {
+    window.location.href = redirect;
+    return null;
   }
+
+  if (role === "USER" && user.role === "ADMIN") {
+    window.location.href = redirect;
+    return null;
+  }
+
+  if (role && role !== "ADMIN" && role !== "USER" && user.role !== role) {
+    window.location.href = redirect;
+    return null;
+  }
+
   return user;
 }
 
@@ -119,18 +146,26 @@ export function confirmAction(message) {
 
 // === Auth helpers (append to common.js) ===
 export function saveAuth(auth) {
-  // Expected shape: { token, user: { id, role, name } }
+  if (!auth) return;
   localStorage.setItem('auth', JSON.stringify(auth));
+  if (auth.user) {
+    localStorage.setItem('user', JSON.stringify(auth.user));
+  } else {
+    localStorage.removeItem('user');
+  }
 }
 export function getAuth() {
   try { return JSON.parse(localStorage.getItem('auth') || 'null'); }
   catch { return null; }
 }
-export function clearAuth() { localStorage.removeItem('auth'); }
+export function clearAuth() {
+  localStorage.removeItem('auth');
+  localStorage.removeItem('user');
+}
 
 export function requireAuthOrRedirect() {
   const auth = getAuth();
-  if (!auth || !auth.token) {
+  if (!auth || !auth.token || !auth.user) {
     window.location.href = '/frontend/login.html';
     return null;
   }

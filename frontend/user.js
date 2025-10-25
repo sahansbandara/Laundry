@@ -13,7 +13,7 @@ const user = requireAuth("USER");
 const logoutBtn = document.getElementById("logout-user");
 logoutBtn?.addEventListener("click", () => {
   clearCurrentUser();
-  window.location.href = "login.html";
+  window.location.href = "/frontend/login.html";
 });
 
 const orderForm = document.getElementById("user-order-form");
@@ -34,6 +34,7 @@ let adminUser = null;
 let pollingInterval = null;
 
 async function initCatalog() {
+  if (!serviceSelect || !unitSelect) return;
   await loadServiceOptions(serviceSelect);
   await loadUnitOptions(unitSelect);
 }
@@ -218,7 +219,9 @@ async function initMessaging() {
 }
 
 async function init() {
-  await initCatalog();
+  if (orderForm) {
+    await initCatalog();
+  }
   await loadOrders();
   await initMessaging();
 }
@@ -228,3 +231,40 @@ init();
 window.addEventListener("beforeunload", () => {
   if (pollingInterval) clearInterval(pollingInterval);
 });
+
+// === Inject Place Order Page inside dashboard ===
+const mount = document.getElementById("placeOrderMount");
+
+async function loadPlaceOrder() {
+  if (!mount) return;
+  try {
+    const res = await fetch("/frontend/place-order.html", { cache: "no-store" });
+    const html = await res.text();
+    const tpl = document.createElement("template");
+    tpl.innerHTML = html;
+
+    const newMain = tpl.content.querySelector("main");
+    if (!newMain) throw new Error("No <main> found in place-order.html");
+
+    mount.innerHTML = "";
+    mount.appendChild(newMain);
+
+    tpl.content.querySelectorAll("style").forEach((style) => {
+      const s = document.createElement("style");
+      s.textContent = style.textContent;
+      document.head.appendChild(s);
+    });
+
+    const scripts = tpl.content.querySelectorAll("script:not([type])");
+    scripts.forEach((old) => {
+      const s = document.createElement("script");
+      s.textContent = old.textContent;
+      document.body.appendChild(s);
+    });
+  } catch (err) {
+    console.error("Failed to load place-order.html", err);
+    mount.innerHTML = '<p style="color:red;padding:1rem;">Failed to load Place Order UI.</p>';
+  }
+}
+
+loadPlaceOrder();
