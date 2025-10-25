@@ -2,127 +2,97 @@ import {
     api,
     requireAuth,
     toastError,
-    toastSuccess,
-    loadServiceOptions,
-    loadUnitOptions,
     clearCurrentUser,
     renderStatusBadge,
 } from "./common.js";
 
 const user = requireAuth("USER");
+
 const logoutBtn = document.getElementById("logout-user");
-logoutBtn?.addEventListener("click", () => {
-    clearCurrentUser();
-    window.location.href = "login.html";
-});
-
-const orderForm = document.getElementById("user-order-form");
-const serviceSelect = document.getElementById("user-service");
-const quantityInput = document.getElementById("user-quantity");
-const unitSelect = document.getElementById("user-unit");
-const pickupInput = document.getElementById("user-pickup");
-const deliveryInput = document.getElementById("user-delivery");
-const notesInput = document.getElementById("user-notes");
-const priceInput = document.getElementById("user-price");
 const ordersBody = document.getElementById("user-orders-body");
-
 const messageList = document.getElementById("user-message-list");
 const messageForm = document.getElementById("user-message-form");
 const messageInput = document.getElementById("user-message-input");
+const placeOrderMount = document.getElementById("placeOrderMount");
 
 let adminUser = null;
 let pollingInterval = null;
 
-async function initCatalog() {
-    await loadServiceOptions(serviceSelect);
-    await loadUnitOptions(unitSelect);
+if (user) {
+    logoutBtn?.addEventListener("click", (event) => {
+        event.preventDefault();
+        clearCurrentUser();
+        window.location.href = "/frontend/login.html";
+    });
 }
 
-function setHelper(id, message) {
-    const helper = document.querySelector(`.helper-text[data-for="${id}"]`);
-    const field = document.getElementById(id);
-    if (!helper || !field) return;
-    if (message) {
-        helper.textContent = message;
-        helper.style.display = "block";
-        field.classList.add("error");
-    } else {
-        helper.textContent = "";
-        helper.style.display = "none";
-        field.classList.remove("error");
-    }
-}
-
-function validateForm() {
-    let valid = true;
-    if (!serviceSelect.value) {
-        setHelper("user-service", "Select a service");
-        valid = false;
-    } else {
-        setHelper("user-service");
-    }
-
-    const quantity = parseFloat(quantityInput.value);
-    if (!quantity || quantity < 1) {
-        setHelper("user-quantity", "Quantity must be at least 1");
-        valid = false;
-    } else {
-        setHelper("user-quantity");
-    }
-
-    if (!unitSelect.value) {
-        setHelper("user-unit", "Select a unit");
-        valid = false;
-    } else {
-        setHelper("user-unit");
-    }
-
-    const price = parseFloat(priceInput.value);
-    if (isNaN(price) || price < 0) {
-        setHelper("user-price", "Price cannot be negative");
-        valid = false;
-    } else {
-        setHelper("user-price");
-    }
-
-    if (!valid) {
-        toastError("Please review highlighted fields");
-    }
-    return valid;
-}
-
-orderForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!validateForm()) return;
-
-    const payload = {
-        customerId: user.id,
-        serviceType: serviceSelect.value,
-        quantity: parseFloat(quantityInput.value),
-        unit: unitSelect.value,
-        price: parseFloat(priceInput.value),
-        pickupDate: pickupInput.value || null,
-        deliveryDate: deliveryInput.value || null,
-        notes: notesInput.value || null,
-    };
+async function mountPlaceOrderUI() {
+    if (!placeOrderMount) return;
+    placeOrderMount.innerHTML = "";
+    const loading = document.createElement("div");
+    loading.className = "embed-loader";
+    loading.textContent = "Loading Place Order UI…";
+    placeOrderMount.appendChild(loading);
 
     try {
-        await api.post("/api/orders", payload);
-        toastSuccess("Order placed! We'll confirm shortly.");
-        orderForm.reset();
-        await initCatalog();
-        await loadOrders();
-    } catch (error) {
-        toastError(error.message);
-    }
-});
+        const response = await fetch("/frontend/place-order.html", { cache: "no-store" });
+        if (!response.ok) {
+            throw new Error("Unable to fetch place-order.html");
+        }
+        const markup = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(markup, "text/html");
 
-serviceSelect?.addEventListener("change", () => setHelper("user-service"));
-quantityInput?.addEventListener("input", () => setHelper("user-quantity"));
-unitSelect?.addEventListener("change", () => setHelper("user-unit"));
-priceInput?.addEventListener("input", () => setHelper("user-price"));
+        document.head.querySelectorAll("style[data-source='place-order']").forEach((node) => node.remove());
+        doc.querySelectorAll("style").forEach((styleEl, index) => {
+            const clone = styleEl.cloneNode(true);
+            clone.dataset.source = "place-order";
+            document.head.appendChild(clone);
+        });
+
+        const fragment = document.createDocumentFragment();
+        const header = doc.querySelector("body > header");
+        const main = doc.querySelector("body > main");
+        const modalRoot = doc.getElementById("modalRoot");
+
+        placeOrderMount.innerHTML = "";
+        [header, main, modalRoot].forEach((node) => {
+            if (node) {
+                fragment.appendChild(node.cloneNode(true));
+            }
+        });
+        placeOrderMount.appendChild(fragment);
+
+        const scriptNodes = doc.querySelectorAll("script");
+        scriptNodes.forEach((original) => {
+            const script = document.createElement("script");
+            script.type = original.type || "text/javascript";
+            script.dataset.source = "place-order";
+            if (original.src) {
+                script.src = original.src;
+            } else {
+                script.textContent = original.textContent;
+            }
+            placeOrderMount.appendChild(script);
+        });
+
+        if (document.readyState !== "loading") {
+            setTimeout(() => {
+                document.dispatchEvent(new Event("DOMContentLoaded"));
+            }, 0);
+        }
+    } catch (error) {
+        console.error(error);
+        placeOrderMount.innerHTML = "";
+        const alert = document.createElement("div");
+        alert.className = "alert alert-error";
+        alert.textContent = "Failed to load Place Order UI";
+        placeOrderMount.appendChild(alert);
+    }
+}
 
 async function loadOrders() {
+    if (!ordersBody) return;
     try {
         const data = await api.get(`/api/orders?userId=${user.id}`);
         renderOrders(data);
@@ -134,7 +104,7 @@ async function loadOrders() {
 function renderOrders(data) {
     if (!ordersBody) return;
     if (!data || data.length === 0) {
-        ordersBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--muted);">No orders yet. Place one above!</td></tr>`;
+        ordersBody.innerHTML = `<tr><td colspan="7" class="empty">No orders yet. Place one above!</td></tr>`;
         return;
     }
     ordersBody.innerHTML = data.map((order) => `<tr>
@@ -158,8 +128,9 @@ async function findAdmin() {
 }
 
 async function loadMessages() {
+    if (!messageList) return;
     if (!adminUser) {
-        messageList.innerHTML = `<p style="color:var(--muted);">Administrator unavailable.</p>`;
+        messageList.innerHTML = `<p class="muted">Administrator unavailable.</p>`;
         return;
     }
     try {
@@ -173,7 +144,7 @@ async function loadMessages() {
 function renderMessages(messages) {
     if (!messageList) return;
     if (!messages || messages.length === 0) {
-        messageList.innerHTML = `<p style="color:var(--muted);">Start the conversation!</p>`;
+        messageList.innerHTML = `<p class="muted">Start the conversation!</p>`;
         return;
     }
     messageList.innerHTML = messages.map((message) => {
@@ -186,29 +157,31 @@ function renderMessages(messages) {
     messageList.scrollTop = messageList.scrollHeight;
 }
 
-messageForm?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!adminUser) {
-        toastError("Admin unavailable");
-        return;
-    }
-    const body = messageInput.value.trim();
-    if (!body) {
-        toastError("Message cannot be empty");
-        return;
-    }
-    try {
-        await api.post("/api/messages", {
-            fromUserId: user.id,
-            toUserId: adminUser.id,
-            body,
-        });
-        messageInput.value = "";
-        await loadMessages();
-    } catch (error) {
-        toastError(error.message);
-    }
-});
+if (user) {
+    messageForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!adminUser) {
+            toastError("Admin unavailable");
+            return;
+        }
+        const body = messageInput.value.trim();
+        if (!body) {
+            toastError("Message cannot be empty");
+            return;
+        }
+        try {
+            await api.post("/api/messages", {
+                fromUserId: user.id,
+                toUserId: adminUser.id,
+                body,
+            });
+            messageInput.value = "";
+            await loadMessages();
+        } catch (error) {
+            toastError(error.message);
+        }
+    });
+}
 
 async function initMessaging() {
     await findAdmin();
@@ -217,14 +190,12 @@ async function initMessaging() {
     pollingInterval = setInterval(loadMessages, 5000);
 }
 
-async function init() {
-    await initCatalog();
-    await loadOrders();
-    await initMessaging();
-}
-
-init();
-
 window.addEventListener("beforeunload", () => {
     if (pollingInterval) clearInterval(pollingInterval);
 });
+
+if (user) {
+    mountPlaceOrderUI();
+    loadOrders();
+    initMessaging();
+}

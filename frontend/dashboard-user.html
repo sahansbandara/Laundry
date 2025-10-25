@@ -6,60 +6,21 @@
     <title>SmartFold — Customer Portal</title>
     <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="dashboard user-dashboard">
 <header class="navbar">
-    <div style="display:flex; align-items:center; gap:16px;">
-        <h1 style="font-size:1.5rem;">SmartFold</h1>
-        <nav style="display:flex; gap:12px;">
-            <a href="#orders" class="btn" style="background:#1F3A8A;">My Orders</a>
-            <a href="#messages" class="btn" style="background:#1F3A8A;">Messages</a>
+    <div class="navbar-group">
+        <h1 class="brand-heading">SmartFold</h1>
+        <nav class="nav-chip-group">
+            <a href="#orders" class="chip-link">My Orders</a>
+            <a href="#messages" class="chip-link">Messages</a>
         </nav>
     </div>
-    <button id="logout-user" style="background:#ef4444;">Logout</button>
+    <button id="logout-user" class="btn-danger">Logout</button>
 </header>
 
-<main style="padding:32px; max-width:1100px; margin:0 auto;">
-    <section class="card" id="new-order">
-        <h2 class="card-title">Place New Order</h2>
-        <form id="user-order-form" novalidate>
-            <div class="form-row">
-                <div>
-                    <label for="user-service">Service Type</label>
-                    <select id="user-service" required></select>
-                    <div class="helper-text" data-for="user-service" style="display:none;"></div>
-                </div>
-                <div>
-                    <label for="user-quantity">Quantity</label>
-                    <input type="number" id="user-quantity" min="1" step="0.1" required />
-                    <div class="helper-text" data-for="user-quantity" style="display:none;"></div>
-                </div>
-                <div>
-                    <label for="user-unit">Unit</label>
-                    <select id="user-unit" required></select>
-                    <div class="helper-text" data-for="user-unit" style="display:none;"></div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div>
-                    <label for="user-pickup">Pickup Date</label>
-                    <input type="date" id="user-pickup" />
-                </div>
-                <div>
-                    <label for="user-delivery">Delivery Date</label>
-                    <input type="date" id="user-delivery" />
-                </div>
-            </div>
-
-            <label for="user-notes">Notes</label>
-            <textarea id="user-notes" placeholder="Optional notes"></textarea>
-
-            <label for="user-price">Estimated Price (LKR)</label>
-            <input type="number" id="user-price" min="0" step="50" required />
-            <div class="helper-text" data-for="user-price" style="display:none;"></div>
-
-            <button type="submit">Submit Order</button>
-        </form>
+<main class="dashboard-content">
+    <section id="place-order-section" class="place-order-section">
+        <div id="placeOrderMount" class="place-order-mount" aria-live="polite"></div>
     </section>
 
     <section class="card" id="orders">
@@ -86,14 +47,14 @@
         <h2 class="card-title">Messages with SmartFold Admin</h2>
         <div class="message-thread">
             <div class="message-list" id="user-message-list"></div>
-            <form id="user-message-form" style="display:flex; gap:12px;">
+            <form id="user-message-form" class="message-form">
                 <input type="text" id="user-message-input" placeholder="Write a message" required />
-                <button type="submit">Send</button>
+                <button type="submit" class="btn-primary">Send</button>
             </form>
         </div>
     </section>
 </main>
 
-<script type="module" src="user.js"></script>
+<script type="module" src="/frontend/user.js"></script>
 </body>
 </html>
