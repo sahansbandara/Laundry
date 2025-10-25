@@ -67,7 +67,7 @@ form?.addEventListener("submit", async (event) => {
     await api.post("/api/auth/register", payload);
     toastSuccess("Registration successful! Please login.");
     setTimeout(() => {
-      window.location.href = "login.html";
+      window.location.href = "/frontend/login.html";
     }, 600);
   } catch (error) {
     toastError(error.message);

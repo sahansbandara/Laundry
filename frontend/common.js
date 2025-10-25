@@ -1,5 +1,6 @@
 const API = "http://localhost:8080";
 const toastContainerId = "toast-container";
+const AUTH_STORAGE_KEY = "smartfold_auth";
 
 function ensureToastContainer() {
     let container = document.getElementById(toastContainerId);
@@ -31,6 +32,38 @@ export function toastError(message) {
     showToast(message, "error");
 }
 
+export function saveAuth(auth = {}) {
+    try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+    } catch (error) {
+        console.error("Failed to persist auth", error);
+    }
+}
+
+export function getAuth() {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw);
+    } catch (error) {
+        return null;
+    }
+}
+
+export function clearAuth() {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem("user");
+}
+
+export function requireAuthOrRedirect() {
+    const auth = getAuth();
+    if (!auth || !auth.token) {
+        window.location.href = "/frontend/login.html";
+        return null;
+    }
+    return auth;
+}
+
 async function handleResponse(response) {
     const text = await response.text();
     const data = text ? JSON.parse(text) : null;
@@ -42,12 +75,17 @@ async function handleResponse(response) {
 }
 
 async function request(url, options = {}) {
+    const auth = getAuth();
+    const headers = {
+        "Content-Type": "application/json",
+        ...options.headers,
+    };
+    if (auth?.token) {
+        headers.Authorization = `Bearer ${auth.token}`;
+    }
     const response = await fetch(url, {
-        headers: {
-            "Content-Type": "application/json",
-            ...options.headers,
-        },
         ...options,
+        headers,
     });
     return handleResponse(response);
 }
@@ -60,36 +98,36 @@ export const api = {
 };
 
 export function getCurrentUser() {
-    const raw = localStorage.getItem("user");
-    if (!raw) return null;
-    try {
-        return JSON.parse(raw);
-    } catch (error) {
-        return null;
-    }
+    const auth = getAuth();
+    return auth?.user ?? null;
 }
 
-export function setCurrentUser(user) {
-    localStorage.setItem("user", JSON.stringify(user));
+export function setCurrentUser(user, token) {
+    saveAuth({
+        token: token ?? user?.token ?? null,
+        user,
+    });
 }
 
 export function clearCurrentUser() {
-    localStorage.removeItem("user");
+    clearAuth();
 }
 
 export function requireAuth(role) {
-    const user = getCurrentUser();
+    const auth = requireAuthOrRedirect();
+    const user = auth?.user;
     if (!user) {
-        window.location.href = "login.html";
-        return;
+        return null;
     }
     if (role && user.role !== role) {
-        window.location.href = user.role === "ADMIN" ? "dashboard-admin.html" : "dashboard-user.html";
+        window.location.href = user.role === "ADMIN" ? "/frontend/dashboard-admin.html" : "/frontend/dashboard-user.html";
+        return null;
     }
     return user;
 }
 
 export async function loadServiceOptions(selectEl) {
+    if (!selectEl) return;
     try {
         const services = await api.get("/api/catalog/services");
         selectEl.innerHTML = `<option value="">Select service</option>` +
@@ -100,6 +138,7 @@ export async function loadServiceOptions(selectEl) {
 }
 
 export async function loadUnitOptions(selectEl) {
+    if (!selectEl) return;
     try {
         const units = await api.get("/api/catalog/units");
         selectEl.innerHTML = `<option value="">Select unit</option>` +
