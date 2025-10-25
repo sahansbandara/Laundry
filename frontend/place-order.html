@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Place New Laundry Order</title>
+  <link rel="stylesheet" href="/frontend/style.css" />
   <style>
     :root {
       --bg: #f3f6fb;
@@ -450,7 +451,11 @@
     }
   </style>
 </head>
-<body>
+<body class="placeorder-body">
+  <script type="module">
+    import { requireAuthOrRedirect } from '/frontend/common.js';
+    requireAuthOrRedirect();
+  </script>
   <header>
     <h1>Place New Laundry Order</h1>
   </header>

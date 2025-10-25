@@ -116,3 +116,23 @@ export function renderStatusBadge(value) {
 export function confirmAction(message) {
   return window.confirm(message);
 }
+
+// === Auth helpers (append to common.js) ===
+export function saveAuth(auth) {
+  // Expected shape: { token, user: { id, role, name } }
+  localStorage.setItem('auth', JSON.stringify(auth));
+}
+export function getAuth() {
+  try { return JSON.parse(localStorage.getItem('auth') || 'null'); }
+  catch { return null; }
+}
+export function clearAuth() { localStorage.removeItem('auth'); }
+
+export function requireAuthOrRedirect() {
+  const auth = getAuth();
+  if (!auth || !auth.token) {
+    window.location.href = '/frontend/login.html';
+    return null;
+  }
+  return auth;
+}
