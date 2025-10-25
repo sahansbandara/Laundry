@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartFold — Admin Console</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1>SmartFold</h1>
+      <nav>
+        <a href="#overview" class="active">Overview</a>
+        <a href="#orders">Orders</a>
+        <a href="#tasks">Tasks</a>
+        <a href="#payments">Payments</a>
+        <a href="#users">Users</a>
+        <a href="#messages">Messages</a>
+        <a href="http://localhost:8080/h2-console" target="_blank">Database</a>
+        <a href="#logout" id="logout-btn">Logout</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <section id="overview" class="card">
+        <div class="flex-between">
+          <h2 class="card-title">Today at a glance</h2>
+          <span id="admin-name" style="color: var(--muted);"></span>
+        </div>
+        <div class="grid grid-4" id="kpi-cards">
+          <div class="card" style="margin-bottom:0;">
+            <p style="color:var(--muted);">Today's Orders</p>
+            <h3 id="kpi-orders" style="font-size:2rem; margin-top:8px;">0</h3>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <p style="color:var(--muted);">Pending Tasks</p>
+            <h3 id="kpi-tasks" style="font-size:2rem; margin-top:8px;">0</h3>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <p style="color:var(--muted);">Revenue LKR (this week)</p>
+            <h3 id="kpi-revenue" style="font-size:2rem; margin-top:8px;">0</h3>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <p style="color:var(--muted);">Unpaid Invoices</p>
+            <h3 id="kpi-unpaid" style="font-size:2rem; margin-top:8px;">0</h3>
+          </div>
+        </div>
+      </section>
+
+      <section id="orders" class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <h2 class="card-title" style="margin-bottom:0;">Orders</h2>
+          <button id="open-order-modal">Add Order</button>
+        </div>
+        <div class="form-row" style="margin-bottom:16px;">
+          <select id="filter-service"></select>
+          <select id="filter-status"></select>
+          <select id="filter-customer"></select>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Qty</th>
+                <th>Price (LKR)</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tasks" class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <h2 class="card-title" style="margin-bottom:0;">Task Board</h2>
+          <button id="open-task-modal">Add Task</button>
+        </div>
+        <div class="lane-container" id="task-lanes"></div>
+      </section>
+
+      <section id="payments" class="card">
+        <h2 class="card-title">Payments</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Order</th>
+                <th>Amount (LKR)</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Paid At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payments-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="users" class="card">
+        <h2 class="card-title">Users</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="messages" class="card">
+        <h2 class="card-title">Messages</h2>
+        <div style="display:flex; gap:24px; flex-wrap:wrap;">
+          <div class="card" style="flex:1 1 240px; margin-bottom:0; max-height:520px; overflow:auto;">
+            <h3 style="margin-bottom:12px;">Customers</h3>
+            <ul id="message-users" style="list-style:none; display:flex; flex-direction:column; gap:12px;"></ul>
+          </div>
+          <div class="message-thread" style="flex:2 1 420px;">
+            <div class="message-list" id="message-list"></div>
+            <form id="message-form" style="display:flex; gap:12px;">
+              <input type="text" id="message-input" placeholder="Type a reply" required />
+              <button type="submit">Send</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="order-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:16px;">Create Order</h3>
+      <form id="order-form" novalidate>
+        <label for="order-customer">Customer</label>
+        <select id="order-customer" required></select>
+        <div class="helper-text" data-for="order-customer" style="display:none;"></div>
+
+        <label for="order-service">Service</label>
+        <select id="order-service" required></select>
+        <div class="helper-text" data-for="order-service" style="display:none;"></div>
+
+        <div class="form-row">
+          <div>
+            <label for="order-quantity">Quantity</label>
+            <input type="number" id="order-quantity" min="1" step="0.1" required />
+            <div class="helper-text" data-for="order-quantity" style="display:none;"></div>
+          </div>
+          <div>
+            <label for="order-unit">Unit</label>
+            <select id="order-unit" required></select>
+            <div class="helper-text" data-for="order-unit" style="display:none;"></div>
+          </div>
+        </div>
+
+        <label for="order-price">Price (LKR)</label>
+        <input type="number" id="order-price" min="0" step="50" required />
+        <div class="helper-text" data-for="order-price" style="display:none;"></div>
+
+        <label for="order-status">Status</label>
+        <select id="order-status">
+          <option value="PENDING">PENDING</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="READY">READY</option>
+          <option value="DELIVERED">DELIVERED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+
+        <div class="form-row">
+          <div>
+            <label for="order-pickup">Pickup Date</label>
+            <input type="date" id="order-pickup" />
+          </div>
+          <div>
+            <label for="order-delivery">Delivery Date</label>
+            <input type="date" id="order-delivery" />
+          </div>
+        </div>
+
+        <label for="order-notes">Notes</label>
+        <textarea id="order-notes" placeholder="Any special handling instructions"></textarea>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px;">
+          <button type="button" id="close-order-modal" class="btn" style="background:#94a3b8;">Cancel</button>
+          <button type="submit">Save Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="task-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom:16px;">Create Task</h3>
+      <form id="task-form" novalidate>
+        <label for="task-title">Title</label>
+        <input type="text" id="task-title" required />
+        <div class="helper-text" data-for="task-title" style="display:none;"></div>
+
+        <label for="task-assigned">Assigned To</label>
+        <input type="text" id="task-assigned" placeholder="Staff member" />
+
+        <label for="task-due">Due Date</label>
+        <input type="date" id="task-due" />
+
+        <label for="task-price">Price (LKR)</label>
+        <input type="number" id="task-price" min="0" step="50" required />
+        <div class="helper-text" data-for="task-price" style="display:none;"></div>
+
+        <label for="task-status">Status</label>
+        <select id="task-status">
+          <option value="PENDING">PENDING</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="COMPLETED">COMPLETED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+
+        <label for="task-notes">Notes</label>
+        <textarea id="task-notes" placeholder="Task notes"></textarea>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px;">
+          <button type="button" id="close-task-modal" class="btn" style="background:#94a3b8;">Cancel</button>
+          <button type="submit">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
