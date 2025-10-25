@@ -1,57 +1,52 @@
-import { saveAuth } from './common.js';
+import { api, setCurrentUser, toastError, toastSuccess } from "./common.js";
 
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.querySelector('#login-form');
-  if (!form) return;
+const form = document.getElementById("login-form");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const errorMessage = document.getElementById("login-error");
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    const email = (fd.get('email') || fd.get('username') || '').trim();
-    const password = (fd.get('password') || '').trim();
-
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password }),
-      });
-
-      if (res.ok) {
-        const data = await res.json(); // expect: { token, user: { role } }
-        saveAuth(data);
-        if (data?.user?.role === 'ADMIN') {
-          window.location.href = '/frontend/dashboard-admin.html';
+function validate() {
+    let valid = true;
+    errorMessage.style.display = "none";
+    [emailInput, passwordInput].forEach((input) => {
+        const helper = document.querySelector(`.helper-text[data-for="${input.id}"]`);
+        if (!input.value) {
+            input.classList.add("error");
+            helper.textContent = "This field is required";
+            helper.style.display = "block";
+            toastError("Please fill in all required fields");
+            valid = false;
         } else {
-          window.location.href = '/frontend/dashboard-user.html';
+            input.classList.remove("error");
+            helper.style.display = "none";
         }
-        return;
-      }
-    } catch (err) {
-      console.warn('Auth API unreachable, using demo fallback');
-    }
+    });
+    return valid;
+}
 
-    // Demo fallback (offline)
-    const DEMO = {
-      'admin@smartfold.lk': { id: 1, role: 'ADMIN', name: 'Admin' },
-      'nimal@smartfold.lk': { id: 2, role: 'CUSTOMER', name: 'Nimal' },
-      'ruwan@smartfold.lk': { id: 3, role: 'CUSTOMER', name: 'Ruwan' },
-      'kamal@smartfold.lk': { id: 4, role: 'CUSTOMER', name: 'Kamal' },
+form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!validate()) return;
+
+    const payload = {
+        email: emailInput.value.trim(),
+        password: passwordInput.value.trim(),
     };
 
-    const match = DEMO[email];
-    if (match && password === '1234') {
-      saveAuth({
-        token: 'demo-' + Math.random().toString(36).slice(2),
-        user: { email, ...match },
-      });
-      window.location.href =
-        match.role === 'ADMIN'
-          ? '/frontend/dashboard-admin.html'
-          : '/frontend/dashboard-user.html';
-      return;
+    try {
+        const user = await api.post("/api/auth/login", payload);
+        setCurrentUser(user);
+        toastSuccess(`Welcome back, ${user.name}!`);
+        setTimeout(() => {
+            if (user.role === "ADMIN") {
+                window.location.href = "dashboard-admin.html";
+            } else {
+                window.location.href = "dashboard-user.html";
+            }
+        }, 300);
+    } catch (error) {
+        errorMessage.textContent = error.message;
+        errorMessage.style.display = "block";
+        toastError(error.message);
     }
-
-    alert('Invalid credentials');
-  });
 });

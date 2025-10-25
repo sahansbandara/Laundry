@@ -1,19 +1,19 @@
 import {
-  api,
-  requireAuth,
-  toastError,
-  toastSuccess,
-  loadServiceOptions,
-  loadUnitOptions,
-  clearCurrentUser,
-  renderStatusBadge,
+    api,
+    requireAuth,
+    toastError,
+    toastSuccess,
+    loadServiceOptions,
+    loadUnitOptions,
+    clearCurrentUser,
+    renderStatusBadge,
 } from "./common.js";
 
 const user = requireAuth("USER");
 const logoutBtn = document.getElementById("logout-user");
 logoutBtn?.addEventListener("click", () => {
-  clearCurrentUser();
-  window.location.href = "/frontend/login.html";
+    clearCurrentUser();
+    window.location.href = "login.html";
 });
 
 const orderForm = document.getElementById("user-order-form");
@@ -34,88 +34,87 @@ let adminUser = null;
 let pollingInterval = null;
 
 async function initCatalog() {
-  if (!serviceSelect || !unitSelect) return;
-  await loadServiceOptions(serviceSelect);
-  await loadUnitOptions(unitSelect);
+    await loadServiceOptions(serviceSelect);
+    await loadUnitOptions(unitSelect);
 }
 
 function setHelper(id, message) {
-  const helper = document.querySelector(`.helper-text[data-for="${id}"]`);
-  const field = document.getElementById(id);
-  if (!helper || !field) return;
-  if (message) {
-    helper.textContent = message;
-    helper.style.display = "block";
-    field.classList.add("error");
-  } else {
-    helper.textContent = "";
-    helper.style.display = "none";
-    field.classList.remove("error");
-  }
+    const helper = document.querySelector(`.helper-text[data-for="${id}"]`);
+    const field = document.getElementById(id);
+    if (!helper || !field) return;
+    if (message) {
+        helper.textContent = message;
+        helper.style.display = "block";
+        field.classList.add("error");
+    } else {
+        helper.textContent = "";
+        helper.style.display = "none";
+        field.classList.remove("error");
+    }
 }
 
 function validateForm() {
-  let valid = true;
-  if (!serviceSelect.value) {
-    setHelper("user-service", "Select a service");
-    valid = false;
-  } else {
-    setHelper("user-service");
-  }
+    let valid = true;
+    if (!serviceSelect.value) {
+        setHelper("user-service", "Select a service");
+        valid = false;
+    } else {
+        setHelper("user-service");
+    }
 
-  const quantity = parseFloat(quantityInput.value);
-  if (!quantity || quantity < 1) {
-    setHelper("user-quantity", "Quantity must be at least 1");
-    valid = false;
-  } else {
-    setHelper("user-quantity");
-  }
+    const quantity = parseFloat(quantityInput.value);
+    if (!quantity || quantity < 1) {
+        setHelper("user-quantity", "Quantity must be at least 1");
+        valid = false;
+    } else {
+        setHelper("user-quantity");
+    }
 
-  if (!unitSelect.value) {
-    setHelper("user-unit", "Select a unit");
-    valid = false;
-  } else {
-    setHelper("user-unit");
-  }
+    if (!unitSelect.value) {
+        setHelper("user-unit", "Select a unit");
+        valid = false;
+    } else {
+        setHelper("user-unit");
+    }
 
-  const price = parseFloat(priceInput.value);
-  if (isNaN(price) || price < 0) {
-    setHelper("user-price", "Price cannot be negative");
-    valid = false;
-  } else {
-    setHelper("user-price");
-  }
+    const price = parseFloat(priceInput.value);
+    if (isNaN(price) || price < 0) {
+        setHelper("user-price", "Price cannot be negative");
+        valid = false;
+    } else {
+        setHelper("user-price");
+    }
 
-  if (!valid) {
-    toastError("Please review highlighted fields");
-  }
-  return valid;
+    if (!valid) {
+        toastError("Please review highlighted fields");
+    }
+    return valid;
 }
 
 orderForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!validateForm()) return;
+    event.preventDefault();
+    if (!validateForm()) return;
 
-  const payload = {
-    customerId: user.id,
-    serviceType: serviceSelect.value,
-    quantity: parseFloat(quantityInput.value),
-    unit: unitSelect.value,
-    price: parseFloat(priceInput.value),
-    pickupDate: pickupInput.value || null,
-    deliveryDate: deliveryInput.value || null,
-    notes: notesInput.value || null,
-  };
+    const payload = {
+        customerId: user.id,
+        serviceType: serviceSelect.value,
+        quantity: parseFloat(quantityInput.value),
+        unit: unitSelect.value,
+        price: parseFloat(priceInput.value),
+        pickupDate: pickupInput.value || null,
+        deliveryDate: deliveryInput.value || null,
+        notes: notesInput.value || null,
+    };
 
-  try {
-    await api.post("/api/orders", payload);
-    toastSuccess("Order placed! We'll confirm shortly.");
-    orderForm.reset();
-    await initCatalog();
-    await loadOrders();
-  } catch (error) {
-    toastError(error.message);
-  }
+    try {
+        await api.post("/api/orders", payload);
+        toastSuccess("Order placed! We'll confirm shortly.");
+        orderForm.reset();
+        await initCatalog();
+        await loadOrders();
+    } catch (error) {
+        toastError(error.message);
+    }
 });
 
 serviceSelect?.addEventListener("change", () => setHelper("user-service"));
@@ -124,21 +123,21 @@ unitSelect?.addEventListener("change", () => setHelper("user-unit"));
 priceInput?.addEventListener("input", () => setHelper("user-price"));
 
 async function loadOrders() {
-  try {
-    const data = await api.get(`/api/orders?userId=${user.id}`);
-    renderOrders(data);
-  } catch (error) {
-    toastError(error.message);
-  }
+    try {
+        const data = await api.get(`/api/orders?userId=${user.id}`);
+        renderOrders(data);
+    } catch (error) {
+        toastError(error.message);
+    }
 }
 
 function renderOrders(data) {
-  if (!ordersBody) return;
-  if (!data || data.length === 0) {
-    ordersBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--muted);">No orders yet. Place one above!</td></tr>`;
-    return;
-  }
-  ordersBody.innerHTML = data.map((order) => `<tr>
+    if (!ordersBody) return;
+    if (!data || data.length === 0) {
+        ordersBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--muted);">No orders yet. Place one above!</td></tr>`;
+        return;
+    }
+    ordersBody.innerHTML = data.map((order) => `<tr>
     <td>#${order.id}</td>
     <td>${order.serviceType}</td>
     <td>${order.quantity} ${order.unit}</td>
@@ -150,121 +149,82 @@ function renderOrders(data) {
 }
 
 async function findAdmin() {
-  try {
-    const data = await api.get("/api/admin/users");
-    adminUser = data.find((entry) => entry.role === "ADMIN");
-  } catch (error) {
-    toastError("Unable to load admin user");
-  }
+    try {
+        const data = await api.get("/api/admin/users");
+        adminUser = data.find((entry) => entry.role === "ADMIN");
+    } catch (error) {
+        toastError("Unable to load admin user");
+    }
 }
 
 async function loadMessages() {
-  if (!adminUser) {
-    messageList.innerHTML = `<p style="color:var(--muted);">Administrator unavailable.</p>`;
-    return;
-  }
-  try {
-    const messages = await api.get(`/api/messages?withUserId=${adminUser.id}&currentUserId=${user.id}`);
-    renderMessages(messages);
-  } catch (error) {
-    toastError(error.message);
-  }
+    if (!adminUser) {
+        messageList.innerHTML = `<p style="color:var(--muted);">Administrator unavailable.</p>`;
+        return;
+    }
+    try {
+        const messages = await api.get(`/api/messages?withUserId=${adminUser.id}&currentUserId=${user.id}`);
+        renderMessages(messages);
+    } catch (error) {
+        toastError(error.message);
+    }
 }
 
 function renderMessages(messages) {
-  if (!messageList) return;
-  if (!messages || messages.length === 0) {
-    messageList.innerHTML = `<p style="color:var(--muted);">Start the conversation!</p>`;
-    return;
-  }
-  messageList.innerHTML = messages.map((message) => {
-    const isUser = message.fromUserId === user.id;
-    return `<div class="message-bubble ${isUser ? "sent" : "received"}">
+    if (!messageList) return;
+    if (!messages || messages.length === 0) {
+        messageList.innerHTML = `<p style="color:var(--muted);">Start the conversation!</p>`;
+        return;
+    }
+    messageList.innerHTML = messages.map((message) => {
+        const isUser = message.fromUserId === user.id;
+        return `<div class="message-bubble ${isUser ? "sent" : "received"}">
       <div>${message.body}</div>
       <div class="message-meta">${new Date(message.timestamp).toLocaleString()}</div>
     </div>`;
-  }).join("");
-  messageList.scrollTop = messageList.scrollHeight;
+    }).join("");
+    messageList.scrollTop = messageList.scrollHeight;
 }
 
 messageForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!adminUser) {
-    toastError("Admin unavailable");
-    return;
-  }
-  const body = messageInput.value.trim();
-  if (!body) {
-    toastError("Message cannot be empty");
-    return;
-  }
-  try {
-    await api.post("/api/messages", {
-      fromUserId: user.id,
-      toUserId: adminUser.id,
-      body,
-    });
-    messageInput.value = "";
-    await loadMessages();
-  } catch (error) {
-    toastError(error.message);
-  }
+    event.preventDefault();
+    if (!adminUser) {
+        toastError("Admin unavailable");
+        return;
+    }
+    const body = messageInput.value.trim();
+    if (!body) {
+        toastError("Message cannot be empty");
+        return;
+    }
+    try {
+        await api.post("/api/messages", {
+            fromUserId: user.id,
+            toUserId: adminUser.id,
+            body,
+        });
+        messageInput.value = "";
+        await loadMessages();
+    } catch (error) {
+        toastError(error.message);
+    }
 });
 
 async function initMessaging() {
-  await findAdmin();
-  await loadMessages();
-  if (pollingInterval) clearInterval(pollingInterval);
-  pollingInterval = setInterval(loadMessages, 5000);
+    await findAdmin();
+    await loadMessages();
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(loadMessages, 5000);
 }
 
 async function init() {
-  if (orderForm) {
     await initCatalog();
-  }
-  await loadOrders();
-  await initMessaging();
+    await loadOrders();
+    await initMessaging();
 }
 
 init();
 
 window.addEventListener("beforeunload", () => {
-  if (pollingInterval) clearInterval(pollingInterval);
+    if (pollingInterval) clearInterval(pollingInterval);
 });
-
-// === Inject Place Order Page inside dashboard ===
-const mount = document.getElementById("placeOrderMount");
-
-async function loadPlaceOrder() {
-  if (!mount) return;
-  try {
-    const res = await fetch("/frontend/place-order.html", { cache: "no-store" });
-    const html = await res.text();
-    const tpl = document.createElement("template");
-    tpl.innerHTML = html;
-
-    const newMain = tpl.content.querySelector("main");
-    if (!newMain) throw new Error("No <main> found in place-order.html");
-
-    mount.innerHTML = "";
-    mount.appendChild(newMain);
-
-    tpl.content.querySelectorAll("style").forEach((style) => {
-      const s = document.createElement("style");
-      s.textContent = style.textContent;
-      document.head.appendChild(s);
-    });
-
-    const scripts = tpl.content.querySelectorAll("script:not([type])");
-    scripts.forEach((old) => {
-      const s = document.createElement("script");
-      s.textContent = old.textContent;
-      document.body.appendChild(s);
-    });
-  } catch (err) {
-    console.error("Failed to load place-order.html", err);
-    mount.innerHTML = '<p style="color:red;padding:1rem;">Failed to load Place Order UI.</p>';
-  }
-}
-
-loadPlaceOrder();

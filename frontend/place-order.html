@@ -1,573 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Place New Laundry Order</title>
-  <link rel="stylesheet" href="/frontend/style.css" />
-  <style>
-    :root {
-      --bg: #f3f6fb;
-      --card-bg: #ffffff;
-      --border-radius: 12px;
-      --shadow: 0 12px 30px rgba(15, 35, 95, 0.08);
-      --primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --danger: #dc2626;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Place New Laundry Order</title>
+    <style>
+        :root {
+            --bg: #f3f6fb;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 12px 30px rgba(15, 35, 95, 0.08);
+            --primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --danger: #dc2626;
+        }
 
-    * {
-      box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    header {
-      padding: 2.5rem 1.5rem 1rem;
-      text-align: center;
-    }
+        header {
+            padding: 2.5rem 1.5rem 1rem;
+            text-align: center;
+        }
 
-    header h1 {
-      margin: 0;
-      font-size: clamp(1.8rem, 2.5vw + 1rem, 2.6rem);
-      font-weight: 600;
-      color: #1e3a8a;
-    }
+        header h1 {
+            margin: 0;
+            font-size: clamp(1.8rem, 2.5vw + 1rem, 2.6rem);
+            font-weight: 600;
+            color: #1e3a8a;
+        }
 
-    main {
-      flex: 1;
-      padding: 0 1.5rem 3rem;
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
-      display: grid;
-      gap: 1.5rem;
-    }
+        main {
+            flex: 1;
+            padding: 0 1.5rem 3rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: grid;
+            gap: 1.5rem;
+        }
 
-    @media (min-width: 1024px) {
-      main {
-        grid-template-columns: 1fr 380px;
-        align-items: start;
-      }
-    }
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 1fr 380px;
+                align-items: start;
+            }
+        }
 
-    .service-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
+        .service-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
 
-    .service-menu h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin: 0;
-    }
+        .service-menu h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+        }
 
-    .service-grid {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
+        .service-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
 
-    .service-card {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+        .service-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-    .service-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);
-    }
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);
+        }
 
-    .service-card h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1e40af;
-    }
+        .service-card h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e40af;
+        }
 
-    .service-card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.4;
-      font-size: 0.95rem;
-    }
+        .service-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
 
-    .price {
-      font-weight: 700;
-      color: var(--text);
-    }
+        .price {
+            font-weight: 700;
+            color: var(--text);
+        }
 
-    .primary-btn {
-      border: none;
-      border-radius: 999px;
-      padding: 0.6rem 1rem;
-      color: #fff;
-      background-image: var(--primary-gradient);
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
+        .primary-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 0.6rem 1rem;
+            color: #fff;
+            background-image: var(--primary-gradient);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
 
-    .primary-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
-    }
+        .primary-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+        }
 
-    .primary-btn:focus {
-      outline: 3px solid rgba(37, 99, 235, 0.35);
-      outline-offset: 2px;
-    }
+        .primary-btn:focus {
+            outline: 3px solid rgba(37, 99, 235, 0.35);
+            outline-offset: 2px;
+        }
 
-    .summary-panel {
-      background: var(--card-bg);
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+        .summary-panel {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-    @media (min-width: 1024px) {
-      .summary-panel {
-        position: sticky;
-        top: 1rem;
-        max-height: calc(100vh - 2rem);
-        overflow: hidden;
-      }
-    }
+        @media (min-width: 1024px) {
+            .summary-panel {
+                position: sticky;
+                top: 1rem;
+                max-height: calc(100vh - 2rem);
+                overflow: hidden;
+            }
+        }
 
-    .summary-panel h2 {
-      margin: 0;
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
+        .summary-panel h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
 
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
 
-    label {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
+        label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
 
-    input[type="datetime-local"],
-    input[type="number"],
-    input[type="text"] {
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      padding: 0.6rem 0.75rem;
-      font-size: 0.95rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
+        input[type="datetime-local"],
+        input[type="number"],
+        input[type="text"] {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
 
-    input[type="datetime-local"]:focus,
-    input[type="number"]:focus,
-    input[type="text"]:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-      outline: none;
-    }
+        input[type="datetime-local"]:focus,
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            outline: none;
+        }
 
-    .error-message {
-      font-size: 0.8rem;
-      color: var(--danger);
-      min-height: 1em;
-    }
+        .error-message {
+            font-size: 0.8rem;
+            color: var(--danger);
+            min-height: 1em;
+        }
 
-    .summary-list-wrapper {
-      flex: 1;
-      min-height: 200px;
-      border: 1px dashed #e5e7eb;
-      border-radius: 10px;
-      padding: 1rem;
-      background: #f9fafb;
-      display: flex;
-      flex-direction: column;
-    }
+        .summary-list-wrapper {
+            flex: 1;
+            min-height: 200px;
+            border: 1px dashed #e5e7eb;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .summary-empty {
-      color: var(--muted);
-      text-align: center;
-      margin: auto;
-      font-size: 0.95rem;
-    }
+        .summary-empty {
+            color: var(--muted);
+            text-align: center;
+            margin: auto;
+            font-size: 0.95rem;
+        }
 
-    #summaryList {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-height: 240px;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-    }
+        #summaryList {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 240px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
 
-    .summary-item {
-      background: #fff;
-      border-radius: 10px;
-      padding: 0.8rem 0.9rem;
-      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.05);
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+        .summary-item {
+            background: #fff;
+            border-radius: 10px;
+            padding: 0.8rem 0.9rem;
+            box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
 
-    .summary-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 600;
-    }
+        .summary-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
 
-    .summary-amount {
-      font-weight: 700;
-      color: #1e3a8a;
-    }
+        .summary-amount {
+            font-weight: 700;
+            color: #1e3a8a;
+        }
 
-    .remove-btn,
-    .edit-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 0.95rem;
-      padding: 0.1rem 0.3rem;
-      border-radius: 6px;
-      transition: color 0.2s ease, background 0.2s ease;
-    }
+        .remove-btn,
+        .edit-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 6px;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
 
-    .remove-btn:hover,
-    .edit-btn:hover {
-      color: var(--danger);
-      background: rgba(220, 38, 38, 0.08);
-    }
+        .remove-btn:hover,
+        .edit-btn:hover {
+            color: var(--danger);
+            background: rgba(220, 38, 38, 0.08);
+        }
 
-    .summary-details {
-      padding-left: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
+        .summary-details {
+            padding-left: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
 
-    .summary-detail-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 0.75rem;
-    }
+        .summary-detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
 
-    .summary-divider {
-      border: none;
-      border-top: 1px dashed #d1d5db;
-      margin: 0.5rem 0;
-    }
+        .summary-divider {
+            border: none;
+            border-top: 1px dashed #d1d5db;
+            margin: 0.5rem 0;
+        }
 
-    .totals {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-      font-size: 0.95rem;
-    }
+        .totals {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.95rem;
+        }
 
-    .totals .label {
-      color: var(--muted);
-    }
+        .totals .label {
+            color: var(--muted);
+        }
 
-    .totals .value {
-      font-weight: 700;
-      color: #1e3a8a;
-    }
+        .totals .value {
+            font-weight: 700;
+            color: #1e3a8a;
+        }
 
-    .total-line {
-      display: flex;
-      justify-content: space-between;
-    }
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+        }
 
-    .add-on-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-size: 0.95rem;
-    }
+        .add-on-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.95rem;
+        }
 
-    .add-on-row input[type="checkbox"] {
-      width: 1.1rem;
-      height: 1.1rem;
-      accent-color: var(--primary);
-    }
+        .add-on-row input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--primary);
+        }
 
-    .place-order-btn {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      font-size: 1.05rem;
-      border-radius: 12px;
-    }
+        .place-order-btn {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 1.05rem;
+            border-radius: 12px;
+        }
 
-    .place-order-btn:disabled {
-      background: #cbd5f5;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
+        .place-order-btn:disabled {
+            background: #cbd5f5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
 
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      z-index: 1000;
-    }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 1000;
+        }
 
-    .modal-content {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 25px 60px rgba(15, 35, 95, 0.2);
-      max-width: 520px;
-      width: 100%;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      position: relative;
-    }
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 25px 60px rgba(15, 35, 95, 0.2);
+            max-width: 520px;
+            width: 100%;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+        }
 
-    .modal-content h3 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
+        .modal-content h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
 
-    .modal-body {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-height: 60vh;
-      overflow-y: auto;
-    }
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
 
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-    }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
 
-    .secondary-btn {
-      border: 1px solid #cbd5f5;
-      border-radius: 999px;
-      padding: 0.55rem 1.2rem;
-      background: #eff6ff;
-      color: #1e3a8a;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease;
-    }
+        .secondary-btn {
+            border: 1px solid #cbd5f5;
+            border-radius: 999px;
+            padding: 0.55rem 1.2rem;
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
 
-    .secondary-btn:hover {
-      background: #dbeafe;
-      border-color: #bfdbfe;
-    }
+        .secondary-btn:hover {
+            background: #dbeafe;
+            border-color: #bfdbfe;
+        }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    th, td {
-      padding: 0.6rem 0.4rem;
-      text-align: left;
-      font-size: 0.95rem;
-    }
+        th, td {
+            padding: 0.6rem 0.4rem;
+            text-align: left;
+            font-size: 0.95rem;
+        }
 
-    thead th {
-      position: sticky;
-      top: 0;
-      background: #f3f4f6;
-      z-index: 1;
-    }
+        thead th {
+            position: sticky;
+            top: 0;
+            background: #f3f4f6;
+            z-index: 1;
+        }
 
-    tbody tr:nth-child(even) {
-      background: #f9fafb;
-    }
+        tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
 
-    .pill {
-      background: rgba(37, 99, 235, 0.1);
-      color: #1e40af;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
+        .pill {
+            background: rgba(37, 99, 235, 0.1);
+            color: #1e40af;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
 
-    .confirmation-summary {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      font-size: 0.95rem;
-    }
+        .confirmation-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
 
-    .confirmation-summary ul {
-      margin: 0;
-      padding-left: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
+        .confirmation-summary ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
 
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-    }
-  </style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
 </head>
-<body class="placeorder-body">
-  <script type="module">
-    import { requireAuthOrRedirect } from '/frontend/common.js';
-    requireAuthOrRedirect();
-  </script>
-  <header>
+<body>
+<header>
     <h1>Place New Laundry Order</h1>
-  </header>
-  <main>
+</header>
+<main>
     <section class="service-menu">
-      <h2>Service Menu</h2>
-      <div class="service-grid">
-        <article class="service-card">
-          <h3>Laundry (Wash Only)</h3>
-          <p>Freshly laundered garments charged by total weight.</p>
-          <div class="price">250 LKR / kg</div>
-          <button class="primary-btn" data-service="laundry" aria-label="Select Laundry Wash Only">Select</button>
-        </article>
-        <article class="service-card">
-          <h3>Pressing (Iron Only)</h3>
-          <p>Perfect crease and finish for garments, priced per item category.</p>
-          <div class="price">Per item (category-based)</div>
-          <button class="primary-btn" data-service="pressing" aria-label="Select Pressing Iron Only">Select</button>
-        </article>
-        <article class="service-card">
-          <h3>Wash &amp; Iron</h3>
-          <p>Complete cleaning and pressing service for each garment type.</p>
-          <div class="price">Per item (Pressing + 25 LKR)</div>
-          <button class="primary-btn" data-service="washiron" aria-label="Select Wash and Iron">Select</button>
-        </article>
-        <article class="service-card">
-          <h3>Dry Cleaning</h3>
-          <p>Delicate solvent-based cleaning for special fabrics.</p>
-          <div class="price">400 LKR / kg</div>
-          <button class="primary-btn" data-service="dry" aria-label="Select Dry Cleaning">Select</button>
-        </article>
-        <article class="service-card">
-          <h3>Express Service</h3>
-          <p>Prioritized turnaround for your entire order.</p>
-          <div class="price">+25% of selected services</div>
-          <button class="primary-btn" data-service="express" aria-label="Toggle Express Add-on">Select</button>
-        </article>
-        <article class="service-card">
-          <h3>Premium / Delicate Care</h3>
-          <p>Hand-finished care for delicate and designer pieces.</p>
-          <div class="price">400 LKR / item</div>
-          <button class="primary-btn" data-service="premium" aria-label="Select Premium Delicate Care">Select</button>
-        </article>
-      </div>
+        <h2>Service Menu</h2>
+        <div class="service-grid">
+            <article class="service-card">
+                <h3>Laundry (Wash Only)</h3>
+                <p>Freshly laundered garments charged by total weight.</p>
+                <div class="price">250 LKR / kg</div>
+                <button class="primary-btn" data-service="laundry" aria-label="Select Laundry Wash Only">Select</button>
+            </article>
+            <article class="service-card">
+                <h3>Pressing (Iron Only)</h3>
+                <p>Perfect crease and finish for garments, priced per item category.</p>
+                <div class="price">Per item (category-based)</div>
+                <button class="primary-btn" data-service="pressing" aria-label="Select Pressing Iron Only">Select</button>
+            </article>
+            <article class="service-card">
+                <h3>Wash &amp; Iron</h3>
+                <p>Complete cleaning and pressing service for each garment type.</p>
+                <div class="price">Per item (Pressing + 25 LKR)</div>
+                <button class="primary-btn" data-service="washiron" aria-label="Select Wash and Iron">Select</button>
+            </article>
+            <article class="service-card">
+                <h3>Dry Cleaning</h3>
+                <p>Delicate solvent-based cleaning for special fabrics.</p>
+                <div class="price">400 LKR / kg</div>
+                <button class="primary-btn" data-service="dry" aria-label="Select Dry Cleaning">Select</button>
+            </article>
+            <article class="service-card">
+                <h3>Express Service</h3>
+                <p>Prioritized turnaround for your entire order.</p>
+                <div class="price">+25% of selected services</div>
+                <button class="primary-btn" data-service="express" aria-label="Toggle Express Add-on">Select</button>
+            </article>
+            <article class="service-card">
+                <h3>Premium / Delicate Care</h3>
+                <p>Hand-finished care for delicate and designer pieces.</p>
+                <div class="price">400 LKR / item</div>
+                <button class="primary-btn" data-service="premium" aria-label="Select Premium Delicate Care">Select</button>
+            </article>
+        </div>
     </section>
 
     <aside class="summary-panel" aria-label="Current Order Summary">
-      <h2>Current Order Summary</h2>
-      <div class="field-group">
-        <label for="pickupDateTime">Pickup Date &amp; Time</label>
-        <input type="datetime-local" id="pickupDateTime" />
-        <span class="error-message" id="pickupError"></span>
-      </div>
-      <div class="field-group">
-        <label for="deliveryDateTime">Delivery Date &amp; Time</label>
-        <input type="datetime-local" id="deliveryDateTime" />
-        <span class="error-message" id="deliveryError"></span>
-      </div>
-
-      <div class="summary-list-wrapper">
-        <div id="summaryList" aria-live="polite"></div>
-      </div>
-
-      <div class="add-on-row">
-        <input type="checkbox" id="expressToggle" />
-        <label for="expressToggle">Express Add-on (+25%)</label>
-      </div>
-      <div class="add-on-row">
-        <input type="checkbox" id="premiumToggle" />
-        <label for="premiumToggle">Premium Care (+LKR 400/item)</label>
-      </div>
-
-      <div class="totals">
-        <div class="total-line">
-          <span class="label">Services Subtotal</span>
-          <span class="value" id="subtotalValue">LKR 0</span>
+        <h2>Current Order Summary</h2>
+        <div class="field-group">
+            <label for="pickupDateTime">Pickup Date &amp; Time</label>
+            <input type="datetime-local" id="pickupDateTime" />
+            <span class="error-message" id="pickupError"></span>
         </div>
-        <div class="total-line total-amount">
-          <span class="label">TOTAL</span>
-          <span class="value" id="totalValue">LKR 0</span>
+        <div class="field-group">
+            <label for="deliveryDateTime">Delivery Date &amp; Time</label>
+            <input type="datetime-local" id="deliveryDateTime" />
+            <span class="error-message" id="deliveryError"></span>
         </div>
-      </div>
 
-      <button id="placeOrderBtn" class="primary-btn place-order-btn" disabled>Place Order</button>
+        <div class="summary-list-wrapper">
+            <div id="summaryList" aria-live="polite"></div>
+        </div>
+
+        <div class="add-on-row">
+            <input type="checkbox" id="expressToggle" />
+            <label for="expressToggle">Express Add-on (+25%)</label>
+        </div>
+        <div class="add-on-row">
+            <input type="checkbox" id="premiumToggle" />
+            <label for="premiumToggle">Premium Care (+LKR 400/item)</label>
+        </div>
+
+        <div class="totals">
+            <div class="total-line">
+                <span class="label">Services Subtotal</span>
+                <span class="value" id="subtotalValue">LKR 0</span>
+            </div>
+            <div class="total-line total-amount">
+                <span class="label">TOTAL</span>
+                <span class="value" id="totalValue">LKR 0</span>
+            </div>
+        </div>
+
+        <button id="placeOrderBtn" class="primary-btn place-order-btn" disabled>Place Order</button>
     </aside>
-  </main>
+</main>
 
-  <div id="modalRoot" aria-live="assertive"></div>
+<div id="modalRoot" aria-live="assertive"></div>
 
-  <script>
+<script>
     const RATES = {
-      laundryPerKg: 250,
-      dryCleaningPerKg: 400,
-      premiumPerItem: 400,
-      pressing: {
-        "Casual Wear": 50,
-        "Formal Wear": 75,
-        "Ethnic / Traditional": 100,
-        "Bedding & Linen": 120,
-        "Curtains & Drapes": 150,
-        "Kids Wear": 60,
-        "Delicates / Premium": 200
-      },
-      washIron: {
-        "Casual Wear": 75,
-        "Formal Wear": 100,
-        "Ethnic / Traditional": 125,
-        "Bedding & Linen": 145,
-        "Curtains & Drapes": 175,
-        "Kids Wear": 85,
-        "Delicates / Premium": 225
-      }
+        laundryPerKg: 250,
+        dryCleaningPerKg: 400,
+        premiumPerItem: 400,
+        pressing: {
+            "Casual Wear": 50,
+            "Formal Wear": 75,
+            "Ethnic / Traditional": 100,
+            "Bedding & Linen": 120,
+            "Curtains & Drapes": 150,
+            "Kids Wear": 60,
+            "Delicates / Premium": 200
+        },
+        washIron: {
+            "Casual Wear": 75,
+            "Formal Wear": 100,
+            "Ethnic / Traditional": 125,
+            "Bedding & Linen": 145,
+            "Curtains & Drapes": 175,
+            "Kids Wear": 85,
+            "Delicates / Premium": 225
+        }
     };
 
     let orderLines = [];
@@ -587,907 +582,907 @@
     const modalRoot = document.getElementById('modalRoot');
 
     function formatLKR(n) {
-      const rounded = Math.round(n);
-      return `LKR ${rounded.toLocaleString('en-LK')}`;
+        const rounded = Math.round(n);
+        return `LKR ${rounded.toLocaleString('en-LK')}`;
     }
 
     function nowLocalForDatetimeInput() {
-      const now = new Date();
-      now.setSeconds(0, 0);
-      const offset = now.getTimezoneOffset();
-      const local = new Date(now.getTime() - offset * 60000);
-      return local.toISOString().slice(0, 16);
+        const now = new Date();
+        now.setSeconds(0, 0);
+        const offset = now.getTimezoneOffset();
+        const local = new Date(now.getTime() - offset * 60000);
+        return local.toISOString().slice(0, 16);
     }
 
     function validateDates() {
-      const errors = { pickup: '', delivery: '' };
-      const pickupValue = pickupInput.value;
-      const deliveryValue = deliveryInput.value;
-      const nowStr = nowLocalForDatetimeInput();
-      const nowDate = new Date(nowStr);
+        const errors = { pickup: '', delivery: '' };
+        const pickupValue = pickupInput.value;
+        const deliveryValue = deliveryInput.value;
+        const nowStr = nowLocalForDatetimeInput();
+        const nowDate = new Date(nowStr);
 
-      if (!pickupValue) {
-        errors.pickup = 'Pickup date & time is required.';
-      } else {
-        const pickupDate = new Date(pickupValue);
-        if (pickupDate < nowDate) {
-          errors.pickup = 'Pickup must be now or later.';
+        if (!pickupValue) {
+            errors.pickup = 'Pickup date & time is required.';
+        } else {
+            const pickupDate = new Date(pickupValue);
+            if (pickupDate < nowDate) {
+                errors.pickup = 'Pickup must be now or later.';
+            }
         }
-      }
 
-      if (!deliveryValue) {
-        errors.delivery = 'Delivery date & time is required.';
-      } else if (!errors.pickup) {
-        const pickupDate = new Date(pickupValue);
-        const deliveryDate = new Date(deliveryValue);
-        if (deliveryDate <= pickupDate) {
-          errors.delivery = 'Delivery must be after pickup.';
+        if (!deliveryValue) {
+            errors.delivery = 'Delivery date & time is required.';
+        } else if (!errors.pickup) {
+            const pickupDate = new Date(pickupValue);
+            const deliveryDate = new Date(deliveryValue);
+            if (deliveryDate <= pickupDate) {
+                errors.delivery = 'Delivery must be after pickup.';
+            }
         }
-      }
 
-      pickupErrorEl.textContent = errors.pickup;
-      deliveryErrorEl.textContent = errors.delivery;
+        pickupErrorEl.textContent = errors.pickup;
+        deliveryErrorEl.textContent = errors.delivery;
 
-      return {
-        valid: !errors.pickup && !errors.delivery,
-        errors
-      };
+        return {
+            valid: !errors.pickup && !errors.delivery,
+            errors
+        };
     }
 
     function recomputeTotals() {
-      summaryListEl.innerHTML = '';
+        summaryListEl.innerHTML = '';
 
-      if (orderLines.length === 0) {
-        const empty = document.createElement('p');
-        empty.className = 'summary-empty';
-        empty.textContent = 'No services added yet. Select a service to begin your order.';
-        summaryListEl.appendChild(empty);
-      } else {
-        orderLines.forEach((line) => {
-          const item = document.createElement('div');
-          item.className = 'summary-item';
+        if (orderLines.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'summary-empty';
+            empty.textContent = 'No services added yet. Select a service to begin your order.';
+            summaryListEl.appendChild(empty);
+        } else {
+            orderLines.forEach((line) => {
+                const item = document.createElement('div');
+                item.className = 'summary-item';
 
-          const header = document.createElement('div');
-          header.className = 'summary-item-header';
+                const header = document.createElement('div');
+                header.className = 'summary-item-header';
 
-          const title = document.createElement('span');
-          title.textContent = getLineTitle(line);
+                const title = document.createElement('span');
+                title.textContent = getLineTitle(line);
 
-          const amount = document.createElement('span');
-          amount.className = 'summary-amount';
-          amount.textContent = formatLKR(line.amount);
+                const amount = document.createElement('span');
+                amount.className = 'summary-amount';
+                amount.textContent = formatLKR(line.amount);
 
-          const removeBtn = document.createElement('button');
-          removeBtn.className = 'remove-btn';
-          removeBtn.type = 'button';
-          removeBtn.setAttribute('aria-label', `Remove ${getLineTitle(line)}`);
-          removeBtn.textContent = '×';
-          removeBtn.addEventListener('click', () => {
-            removeLine(line.id);
-          });
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.type = 'button';
+                removeBtn.setAttribute('aria-label', `Remove ${getLineTitle(line)}`);
+                removeBtn.textContent = '×';
+                removeBtn.addEventListener('click', () => {
+                    removeLine(line.id);
+                });
 
-          header.appendChild(title);
-          header.appendChild(amount);
-          header.appendChild(removeBtn);
-          item.appendChild(header);
+                header.appendChild(title);
+                header.appendChild(amount);
+                header.appendChild(removeBtn);
+                item.appendChild(header);
 
-          const details = buildLineDetails(line);
-          if (details) {
-            item.appendChild(details);
-          }
+                const details = buildLineDetails(line);
+                if (details) {
+                    item.appendChild(details);
+                }
 
-          summaryListEl.appendChild(item);
-        });
-      }
+                summaryListEl.appendChild(item);
+            });
+        }
 
-      const baseSubtotal = orderLines.reduce((sum, line) => sum + line.amount, 0);
-      const expressFee = expressEnabled ? Math.round(baseSubtotal * 0.25) : 0;
-      const premiumAddon = premiumAddonCount > 0 ? premiumAddonCount * RATES.premiumPerItem : 0;
+        const baseSubtotal = orderLines.reduce((sum, line) => sum + line.amount, 0);
+        const expressFee = expressEnabled ? Math.round(baseSubtotal * 0.25) : 0;
+        const premiumAddon = premiumAddonCount > 0 ? premiumAddonCount * RATES.premiumPerItem : 0;
 
-      if (expressEnabled) {
-        const expressItem = document.createElement('div');
-        expressItem.className = 'summary-item';
-        const header = document.createElement('div');
-        header.className = 'summary-item-header';
-        const title = document.createElement('span');
-        title.textContent = 'Express Add-on (+25%)';
-        const amount = document.createElement('span');
-        amount.className = 'summary-amount';
-        amount.textContent = formatLKR(expressFee);
-        header.appendChild(title);
-        header.appendChild(amount);
-        expressItem.appendChild(header);
-        summaryListEl.appendChild(expressItem);
-      }
+        if (expressEnabled) {
+            const expressItem = document.createElement('div');
+            expressItem.className = 'summary-item';
+            const header = document.createElement('div');
+            header.className = 'summary-item-header';
+            const title = document.createElement('span');
+            title.textContent = 'Express Add-on (+25%)';
+            const amount = document.createElement('span');
+            amount.className = 'summary-amount';
+            amount.textContent = formatLKR(expressFee);
+            header.appendChild(title);
+            header.appendChild(amount);
+            expressItem.appendChild(header);
+            summaryListEl.appendChild(expressItem);
+        }
 
-      if (premiumAddonCount > 0) {
-        const premiumItem = document.createElement('div');
-        premiumItem.className = 'summary-item';
-        const header = document.createElement('div');
-        header.className = 'summary-item-header';
-        const title = document.createElement('span');
-        title.textContent = `Premium Care Add-on (${premiumAddonCount} item${premiumAddonCount > 1 ? 's' : ''})`;
-        const amount = document.createElement('span');
-        amount.className = 'summary-amount';
-        amount.textContent = formatLKR(premiumAddon);
+        if (premiumAddonCount > 0) {
+            const premiumItem = document.createElement('div');
+            premiumItem.className = 'summary-item';
+            const header = document.createElement('div');
+            header.className = 'summary-item-header';
+            const title = document.createElement('span');
+            title.textContent = `Premium Care Add-on (${premiumAddonCount} item${premiumAddonCount > 1 ? 's' : ''})`;
+            const amount = document.createElement('span');
+            amount.className = 'summary-amount';
+            amount.textContent = formatLKR(premiumAddon);
 
-        const actions = document.createElement('div');
-        actions.style.display = 'flex';
-        actions.style.gap = '0.25rem';
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.gap = '0.25rem';
 
-        const editBtn = document.createElement('button');
-        editBtn.className = 'edit-btn';
-        editBtn.type = 'button';
-        editBtn.setAttribute('aria-label', 'Edit Premium Care add-on quantity');
-        editBtn.textContent = '✎';
-        editBtn.addEventListener('click', () => {
-          openPremiumAddonModal();
-        });
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-btn';
+            editBtn.type = 'button';
+            editBtn.setAttribute('aria-label', 'Edit Premium Care add-on quantity');
+            editBtn.textContent = '✎';
+            editBtn.addEventListener('click', () => {
+                openPremiumAddonModal();
+            });
 
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-btn';
-        removeBtn.type = 'button';
-        removeBtn.setAttribute('aria-label', 'Remove Premium Care add-on');
-        removeBtn.textContent = '×';
-        removeBtn.addEventListener('click', () => {
-          premiumAddonCount = 0;
-          premiumToggle.checked = false;
-          recomputeTotals();
-        });
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.type = 'button';
+            removeBtn.setAttribute('aria-label', 'Remove Premium Care add-on');
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', () => {
+                premiumAddonCount = 0;
+                premiumToggle.checked = false;
+                recomputeTotals();
+            });
 
-        actions.appendChild(editBtn);
-        actions.appendChild(removeBtn);
+            actions.appendChild(editBtn);
+            actions.appendChild(removeBtn);
 
-        header.appendChild(title);
-        header.appendChild(amount);
-        header.appendChild(actions);
-        premiumItem.appendChild(header);
-        summaryListEl.appendChild(premiumItem);
-      }
+            header.appendChild(title);
+            header.appendChild(amount);
+            header.appendChild(actions);
+            premiumItem.appendChild(header);
+            summaryListEl.appendChild(premiumItem);
+        }
 
-      subtotalValueEl.textContent = formatLKR(baseSubtotal);
-      const total = baseSubtotal + expressFee + premiumAddon;
-      totalValueEl.textContent = formatLKR(total);
+        subtotalValueEl.textContent = formatLKR(baseSubtotal);
+        const total = baseSubtotal + expressFee + premiumAddon;
+        totalValueEl.textContent = formatLKR(total);
 
-      updatePlaceOrderState({ baseSubtotal, total });
+        updatePlaceOrderState({ baseSubtotal, total });
     }
 
     function buildLineDetails(line) {
-      if (line.type === 'pressing' || line.type === 'washiron') {
-        const list = document.createElement('div');
-        list.className = 'summary-details';
-        line.categories.forEach((cat) => {
-          const row = document.createElement('div');
-          row.className = 'summary-detail-row';
-          const name = document.createElement('span');
-          name.textContent = `• ${cat.name} (${cat.qty} item${cat.qty > 1 ? 's' : ''})`;
-          const value = document.createElement('span');
-          value.textContent = formatLKR(cat.qty * cat.price);
-          row.appendChild(name);
-          row.appendChild(value);
-          list.appendChild(row);
-        });
-        const sub = document.createElement('div');
-        sub.className = 'summary-detail-row';
-        const label = document.createElement('span');
-        label.textContent = 'Subtotal';
-        const amount = document.createElement('span');
-        amount.textContent = formatLKR(line.amount);
-        sub.appendChild(label);
-        sub.appendChild(amount);
-        list.appendChild(sub);
-        return list;
-      }
+        if (line.type === 'pressing' || line.type === 'washiron') {
+            const list = document.createElement('div');
+            list.className = 'summary-details';
+            line.categories.forEach((cat) => {
+                const row = document.createElement('div');
+                row.className = 'summary-detail-row';
+                const name = document.createElement('span');
+                name.textContent = `• ${cat.name} (${cat.qty} item${cat.qty > 1 ? 's' : ''})`;
+                const value = document.createElement('span');
+                value.textContent = formatLKR(cat.qty * cat.price);
+                row.appendChild(name);
+                row.appendChild(value);
+                list.appendChild(row);
+            });
+            const sub = document.createElement('div');
+            sub.className = 'summary-detail-row';
+            const label = document.createElement('span');
+            label.textContent = 'Subtotal';
+            const amount = document.createElement('span');
+            amount.textContent = formatLKR(line.amount);
+            sub.appendChild(label);
+            sub.appendChild(amount);
+            list.appendChild(sub);
+            return list;
+        }
 
-      if (line.type === 'laundry') {
-        const detail = document.createElement('div');
-        detail.className = 'summary-details';
-        const row = document.createElement('div');
-        row.className = 'summary-detail-row';
-        const label = document.createElement('span');
-        label.textContent = `${line.weight} kg × ${formatLKR(RATES.laundryPerKg)} per kg`;
-        const value = document.createElement('span');
-        value.textContent = formatLKR(line.amount);
-        row.appendChild(label);
-        row.appendChild(value);
-        detail.appendChild(row);
-        return detail;
-      }
+        if (line.type === 'laundry') {
+            const detail = document.createElement('div');
+            detail.className = 'summary-details';
+            const row = document.createElement('div');
+            row.className = 'summary-detail-row';
+            const label = document.createElement('span');
+            label.textContent = `${line.weight} kg × ${formatLKR(RATES.laundryPerKg)} per kg`;
+            const value = document.createElement('span');
+            value.textContent = formatLKR(line.amount);
+            row.appendChild(label);
+            row.appendChild(value);
+            detail.appendChild(row);
+            return detail;
+        }
 
-      if (line.type === 'dry') {
-        const detail = document.createElement('div');
-        detail.className = 'summary-details';
-        const row = document.createElement('div');
-        row.className = 'summary-detail-row';
-        const label = document.createElement('span');
-        label.textContent = `${line.weight} kg × ${formatLKR(RATES.dryCleaningPerKg)} per kg`;
-        const value = document.createElement('span');
-        value.textContent = formatLKR(line.amount);
-        row.appendChild(label);
-        row.appendChild(value);
-        detail.appendChild(row);
-        return detail;
-      }
+        if (line.type === 'dry') {
+            const detail = document.createElement('div');
+            detail.className = 'summary-details';
+            const row = document.createElement('div');
+            row.className = 'summary-detail-row';
+            const label = document.createElement('span');
+            label.textContent = `${line.weight} kg × ${formatLKR(RATES.dryCleaningPerKg)} per kg`;
+            const value = document.createElement('span');
+            value.textContent = formatLKR(line.amount);
+            row.appendChild(label);
+            row.appendChild(value);
+            detail.appendChild(row);
+            return detail;
+        }
 
-      if (line.type === 'premiumService') {
-        const detail = document.createElement('div');
-        detail.className = 'summary-details';
-        const row = document.createElement('div');
-        row.className = 'summary-detail-row';
-        const label = document.createElement('span');
-        label.textContent = `${line.count} item${line.count > 1 ? 's' : ''} × ${formatLKR(RATES.premiumPerItem)} per item`;
-        const value = document.createElement('span');
-        value.textContent = formatLKR(line.amount);
-        row.appendChild(label);
-        row.appendChild(value);
-        detail.appendChild(row);
-        return detail;
-      }
+        if (line.type === 'premiumService') {
+            const detail = document.createElement('div');
+            detail.className = 'summary-details';
+            const row = document.createElement('div');
+            row.className = 'summary-detail-row';
+            const label = document.createElement('span');
+            label.textContent = `${line.count} item${line.count > 1 ? 's' : ''} × ${formatLKR(RATES.premiumPerItem)} per item`;
+            const value = document.createElement('span');
+            value.textContent = formatLKR(line.amount);
+            row.appendChild(label);
+            row.appendChild(value);
+            detail.appendChild(row);
+            return detail;
+        }
 
-      return null;
+        return null;
     }
 
     function getLineTitle(line) {
-      switch (line.type) {
-        case 'laundry':
-          return `Laundry (Wash Only) (${line.weight} kg)`;
-        case 'dry':
-          return `Dry Cleaning (${line.weight} kg)`;
-        case 'pressing':
-          return 'Pressing (Iron Only)';
-        case 'washiron':
-          return 'Wash & Iron';
-        case 'premiumService':
-          return `Premium / Delicate Care (${line.count} item${line.count > 1 ? 's' : ''})`;
-        default:
-          return 'Service';
-      }
+        switch (line.type) {
+            case 'laundry':
+                return `Laundry (Wash Only) (${line.weight} kg)`;
+            case 'dry':
+                return `Dry Cleaning (${line.weight} kg)`;
+            case 'pressing':
+                return 'Pressing (Iron Only)';
+            case 'washiron':
+                return 'Wash & Iron';
+            case 'premiumService':
+                return `Premium / Delicate Care (${line.count} item${line.count > 1 ? 's' : ''})`;
+            default:
+                return 'Service';
+        }
     }
 
     function addLine(line) {
-      const id = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      orderLines.push({ ...line, id });
-      recomputeTotals();
+        const id = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        orderLines.push({ ...line, id });
+        recomputeTotals();
     }
 
     function removeLine(id) {
-      orderLines = orderLines.filter((line) => line.id !== id);
-      recomputeTotals();
+        orderLines = orderLines.filter((line) => line.id !== id);
+        recomputeTotals();
     }
 
     function updatePlaceOrderState({ baseSubtotal, total }) {
-      const dateState = validateDates();
-      const hasServices = orderLines.length > 0;
-      const hasAddOns = expressEnabled || premiumAddonCount > 0;
-      const allow = dateState.valid && total > 0 && (hasServices || hasAddOns);
-      placeOrderBtn.disabled = !allow;
+        const dateState = validateDates();
+        const hasServices = orderLines.length > 0;
+        const hasAddOns = expressEnabled || premiumAddonCount > 0;
+        const allow = dateState.valid && total > 0 && (hasServices || hasAddOns);
+        placeOrderBtn.disabled = !allow;
     }
 
     function openModal(modalContent, { onClose } = {}) {
-      const overlay = document.createElement('div');
-      overlay.className = 'modal-overlay';
-      overlay.appendChild(modalContent);
-      const previouslyFocused = document.activeElement;
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.appendChild(modalContent);
+        const previouslyFocused = document.activeElement;
 
-      function closeModal() {
-        document.removeEventListener('keydown', handleKeyDown);
-        overlay.removeEventListener('click', handleOverlayClick);
+        function closeModal() {
+            document.removeEventListener('keydown', handleKeyDown);
+            overlay.removeEventListener('click', handleOverlayClick);
+            modalRoot.innerHTML = '';
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus();
+            }
+            if (typeof onClose === 'function') {
+                onClose();
+            }
+        }
+
+        function handleOverlayClick(e) {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+                const focusable = modalContent.querySelectorAll(focusableSelectors);
+                if (focusable.length === 0) {
+                    e.preventDefault();
+                    return;
+                }
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+        overlay.addEventListener('click', handleOverlayClick);
+
         modalRoot.innerHTML = '';
-        if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
-          previouslyFocused.focus();
+        modalRoot.appendChild(overlay);
+
+        const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusable = modalContent.querySelectorAll(focusableSelectors);
+        if (focusable.length > 0) {
+            focusable[0].focus();
         }
-        if (typeof onClose === 'function') {
-          onClose();
-        }
-      }
 
-      function handleOverlayClick(e) {
-        if (e.target === overlay) {
-          closeModal();
-        }
-      }
-
-      function handleKeyDown(e) {
-        if (e.key === 'Escape') {
-          closeModal();
-          return;
-        }
-        if (e.key === 'Tab') {
-          const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-          const focusable = modalContent.querySelectorAll(focusableSelectors);
-          if (focusable.length === 0) {
-            e.preventDefault();
-            return;
-          }
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-
-      document.addEventListener('keydown', handleKeyDown);
-      overlay.addEventListener('click', handleOverlayClick);
-
-      modalRoot.innerHTML = '';
-      modalRoot.appendChild(overlay);
-
-      const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-      const focusable = modalContent.querySelectorAll(focusableSelectors);
-      if (focusable.length > 0) {
-        focusable[0].focus();
-      }
-
-      return closeModal;
+        return closeModal;
     }
 
     function openWeightModal(serviceType) {
-      const isLaundry = serviceType === 'laundry';
-      const titleText = isLaundry ? 'Add Laundry (Wash Only)' : 'Add Dry Cleaning';
-      const rate = isLaundry ? RATES.laundryPerKg : RATES.dryCleaningPerKg;
+        const isLaundry = serviceType === 'laundry';
+        const titleText = isLaundry ? 'Add Laundry (Wash Only)' : 'Add Dry Cleaning';
+        const rate = isLaundry ? RATES.laundryPerKg : RATES.dryCleaningPerKg;
 
-      const modal = document.createElement('div');
-      modal.className = 'modal-content';
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
 
-      const title = document.createElement('h3');
-      title.textContent = titleText;
+        const title = document.createElement('h3');
+        title.textContent = titleText;
 
-      const body = document.createElement('div');
-      body.className = 'modal-body';
+        const body = document.createElement('div');
+        body.className = 'modal-body';
 
-      const inputGroup = document.createElement('div');
-      inputGroup.className = 'field-group';
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'field-group';
 
-      const label = document.createElement('label');
-      label.textContent = 'Total weight (kg)';
-      label.setAttribute('for', 'weightInput');
+        const label = document.createElement('label');
+        label.textContent = 'Total weight (kg)';
+        label.setAttribute('for', 'weightInput');
 
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.id = 'weightInput';
-      input.min = '0.5';
-      input.step = '0.5';
-      input.placeholder = 'e.g. 3.5';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.id = 'weightInput';
+        input.min = '0.5';
+        input.step = '0.5';
+        input.placeholder = 'e.g. 3.5';
 
-      const helper = document.createElement('div');
-      helper.className = 'pill';
-      helper.textContent = `${formatLKR(rate)} per kg`;
+        const helper = document.createElement('div');
+        helper.className = 'pill';
+        helper.textContent = `${formatLKR(rate)} per kg`;
 
-      const preview = document.createElement('p');
-      preview.textContent = 'Amount: LKR 0';
-      preview.style.fontWeight = '600';
+        const preview = document.createElement('p');
+        preview.textContent = 'Amount: LKR 0';
+        preview.style.fontWeight = '600';
 
-      inputGroup.appendChild(label);
-      inputGroup.appendChild(input);
-      inputGroup.appendChild(helper);
-      body.appendChild(inputGroup);
-      body.appendChild(preview);
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(helper);
+        body.appendChild(inputGroup);
+        body.appendChild(preview);
 
-      const actions = document.createElement('div');
-      actions.className = 'modal-actions';
+        const actions = document.createElement('div');
+        actions.className = 'modal-actions';
 
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'secondary-btn';
-      cancelBtn.type = 'button';
-      cancelBtn.textContent = 'Cancel';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'secondary-btn';
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Cancel';
 
-      const confirmBtn = document.createElement('button');
-      confirmBtn.className = 'primary-btn';
-      confirmBtn.type = 'button';
-      confirmBtn.textContent = 'Confirm';
-      confirmBtn.disabled = true;
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'primary-btn';
+        confirmBtn.type = 'button';
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.disabled = true;
 
-      actions.appendChild(cancelBtn);
-      actions.appendChild(confirmBtn);
+        actions.appendChild(cancelBtn);
+        actions.appendChild(confirmBtn);
 
-      modal.appendChild(title);
-      modal.appendChild(body);
-      modal.appendChild(actions);
+        modal.appendChild(title);
+        modal.appendChild(body);
+        modal.appendChild(actions);
 
-      const close = openModal(modal);
+        const close = openModal(modal);
 
-      function updatePreview() {
-        const value = parseFloat(input.value);
-        if (!isNaN(value) && value >= 0.5) {
-          const amount = Math.round(value * rate);
-          preview.textContent = `Amount: ${formatLKR(amount)}`;
-          confirmBtn.disabled = false;
-        } else {
-          preview.textContent = 'Amount: LKR 0';
-          confirmBtn.disabled = true;
+        function updatePreview() {
+            const value = parseFloat(input.value);
+            if (!isNaN(value) && value >= 0.5) {
+                const amount = Math.round(value * rate);
+                preview.textContent = `Amount: ${formatLKR(amount)}`;
+                confirmBtn.disabled = false;
+            } else {
+                preview.textContent = 'Amount: LKR 0';
+                confirmBtn.disabled = true;
+            }
         }
-      }
 
-      input.addEventListener('input', updatePreview);
+        input.addEventListener('input', updatePreview);
 
-      confirmBtn.addEventListener('click', () => {
-        const value = parseFloat(input.value);
-        if (isNaN(value) || value < 0.5) return;
-        const amount = Math.round(value * rate);
-        addLine({
-          type: serviceType,
-          weight: parseFloat(value.toFixed(2)),
-          amount
+        confirmBtn.addEventListener('click', () => {
+            const value = parseFloat(input.value);
+            if (isNaN(value) || value < 0.5) return;
+            const amount = Math.round(value * rate);
+            addLine({
+                type: serviceType,
+                weight: parseFloat(value.toFixed(2)),
+                amount
+            });
+            close();
         });
-        close();
-      });
 
-      cancelBtn.addEventListener('click', () => {
-        close();
-      });
+        cancelBtn.addEventListener('click', () => {
+            close();
+        });
     }
 
     function openCategoryModal(serviceType) {
-      const isPressing = serviceType === 'pressing';
-      const titleText = isPressing ? 'Add Pressing (Iron Only)' : 'Add Wash & Iron';
-      const rateTable = isPressing ? RATES.pressing : RATES.washIron;
-      const otherRateTable = isPressing ? RATES.washIron : RATES.pressing;
+        const isPressing = serviceType === 'pressing';
+        const titleText = isPressing ? 'Add Pressing (Iron Only)' : 'Add Wash & Iron';
+        const rateTable = isPressing ? RATES.pressing : RATES.washIron;
+        const otherRateTable = isPressing ? RATES.washIron : RATES.pressing;
 
-      const modal = document.createElement('div');
-      modal.className = 'modal-content';
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
 
-      const title = document.createElement('h3');
-      title.textContent = titleText;
+        const title = document.createElement('h3');
+        title.textContent = titleText;
 
-      const body = document.createElement('div');
-      body.className = 'modal-body';
+        const body = document.createElement('div');
+        body.className = 'modal-body';
 
-      const table = document.createElement('table');
-      const thead = document.createElement('thead');
-      const headRow = document.createElement('tr');
-      ['Category', 'Price per item', 'Qty'].forEach((headerText) => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
-        headRow.appendChild(th);
-      });
-      thead.appendChild(headRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-      const inputs = [];
-      Object.keys(rateTable).forEach((category) => {
-        const row = document.createElement('tr');
-        const catCell = document.createElement('td');
-        catCell.textContent = category;
-        const priceCell = document.createElement('td');
-        priceCell.innerHTML = `<strong>${formatLKR(rateTable[category])}</strong> <span style="color: var(--muted); font-size: 0.8rem;">(${formatLKR(otherRateTable[category])} ${isPressing ? 'Wash & Iron' : 'Pressing'})</span>`;
-        const qtyCell = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = '0';
-        input.step = '1';
-        input.value = '0';
-        input.setAttribute('aria-label', `${category} quantity`);
-        qtyCell.appendChild(input);
-        row.appendChild(catCell);
-        row.appendChild(priceCell);
-        row.appendChild(qtyCell);
-        tbody.appendChild(row);
-        inputs.push({ category, input });
-      });
-      table.appendChild(tbody);
-
-      const preview = document.createElement('div');
-      preview.style.fontWeight = '600';
-      preview.textContent = 'Subtotal: LKR 0';
-
-      body.appendChild(table);
-      body.appendChild(preview);
-
-      const actions = document.createElement('div');
-      actions.className = 'modal-actions';
-
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'secondary-btn';
-      cancelBtn.type = 'button';
-      cancelBtn.textContent = 'Cancel';
-
-      const confirmBtn = document.createElement('button');
-      confirmBtn.className = 'primary-btn';
-      confirmBtn.type = 'button';
-      confirmBtn.textContent = 'Confirm';
-      confirmBtn.disabled = true;
-
-      actions.appendChild(cancelBtn);
-      actions.appendChild(confirmBtn);
-
-      modal.appendChild(title);
-      modal.appendChild(body);
-      modal.appendChild(actions);
-
-      const close = openModal(modal);
-
-      function refreshSubtotal() {
-        let subtotal = 0;
-        let totalQty = 0;
-        inputs.forEach(({ category, input }) => {
-          const qty = parseInt(input.value, 10) || 0;
-          totalQty += qty;
-          subtotal += qty * rateTable[category];
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        ['Category', 'Price per item', 'Qty'].forEach((headerText) => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            headRow.appendChild(th);
         });
-        preview.textContent = `Subtotal: ${formatLKR(subtotal)} (${totalQty} item${totalQty === 1 ? '' : 's'})`;
-        confirmBtn.disabled = totalQty === 0;
-      }
+        thead.appendChild(headRow);
+        table.appendChild(thead);
 
-      inputs.forEach(({ input }) => {
-        input.addEventListener('input', refreshSubtotal);
-      });
-
-      confirmBtn.addEventListener('click', () => {
-        let subtotal = 0;
-        const categories = [];
-        let hasQty = false;
-        inputs.forEach(({ category, input }) => {
-          const qty = parseInt(input.value, 10) || 0;
-          if (qty > 0) {
-            hasQty = true;
-            subtotal += qty * rateTable[category];
-            categories.push({ name: category, qty, price: rateTable[category] });
-          }
+        const tbody = document.createElement('tbody');
+        const inputs = [];
+        Object.keys(rateTable).forEach((category) => {
+            const row = document.createElement('tr');
+            const catCell = document.createElement('td');
+            catCell.textContent = category;
+            const priceCell = document.createElement('td');
+            priceCell.innerHTML = `<strong>${formatLKR(rateTable[category])}</strong> <span style="color: var(--muted); font-size: 0.8rem;">(${formatLKR(otherRateTable[category])} ${isPressing ? 'Wash & Iron' : 'Pressing'})</span>`;
+            const qtyCell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            input.step = '1';
+            input.value = '0';
+            input.setAttribute('aria-label', `${category} quantity`);
+            qtyCell.appendChild(input);
+            row.appendChild(catCell);
+            row.appendChild(priceCell);
+            row.appendChild(qtyCell);
+            tbody.appendChild(row);
+            inputs.push({ category, input });
         });
-        if (!hasQty) return;
-        addLine({
-          type: serviceType,
-          categories,
-          amount: subtotal
-        });
-        close();
-      });
+        table.appendChild(tbody);
 
-      cancelBtn.addEventListener('click', () => {
-        close();
-      });
+        const preview = document.createElement('div');
+        preview.style.fontWeight = '600';
+        preview.textContent = 'Subtotal: LKR 0';
+
+        body.appendChild(table);
+        body.appendChild(preview);
+
+        const actions = document.createElement('div');
+        actions.className = 'modal-actions';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'secondary-btn';
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Cancel';
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'primary-btn';
+        confirmBtn.type = 'button';
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.disabled = true;
+
+        actions.appendChild(cancelBtn);
+        actions.appendChild(confirmBtn);
+
+        modal.appendChild(title);
+        modal.appendChild(body);
+        modal.appendChild(actions);
+
+        const close = openModal(modal);
+
+        function refreshSubtotal() {
+            let subtotal = 0;
+            let totalQty = 0;
+            inputs.forEach(({ category, input }) => {
+                const qty = parseInt(input.value, 10) || 0;
+                totalQty += qty;
+                subtotal += qty * rateTable[category];
+            });
+            preview.textContent = `Subtotal: ${formatLKR(subtotal)} (${totalQty} item${totalQty === 1 ? '' : 's'})`;
+            confirmBtn.disabled = totalQty === 0;
+        }
+
+        inputs.forEach(({ input }) => {
+            input.addEventListener('input', refreshSubtotal);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            let subtotal = 0;
+            const categories = [];
+            let hasQty = false;
+            inputs.forEach(({ category, input }) => {
+                const qty = parseInt(input.value, 10) || 0;
+                if (qty > 0) {
+                    hasQty = true;
+                    subtotal += qty * rateTable[category];
+                    categories.push({ name: category, qty, price: rateTable[category] });
+                }
+            });
+            if (!hasQty) return;
+            addLine({
+                type: serviceType,
+                categories,
+                amount: subtotal
+            });
+            close();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            close();
+        });
     }
 
     function openPremiumServiceModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-content';
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
 
-      const title = document.createElement('h3');
-      title.textContent = 'Add Premium / Delicate Care Items';
+        const title = document.createElement('h3');
+        title.textContent = 'Add Premium / Delicate Care Items';
 
-      const body = document.createElement('div');
-      body.className = 'modal-body';
+        const body = document.createElement('div');
+        body.className = 'modal-body';
 
-      const inputGroup = document.createElement('div');
-      inputGroup.className = 'field-group';
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'field-group';
 
-      const label = document.createElement('label');
-      label.setAttribute('for', 'premiumServiceQty');
-      label.textContent = 'Number of premium items';
+        const label = document.createElement('label');
+        label.setAttribute('for', 'premiumServiceQty');
+        label.textContent = 'Number of premium items';
 
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.id = 'premiumServiceQty';
-      input.min = '1';
-      input.step = '1';
-      input.placeholder = 'e.g. 3';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.id = 'premiumServiceQty';
+        input.min = '1';
+        input.step = '1';
+        input.placeholder = 'e.g. 3';
 
-      const helper = document.createElement('div');
-      helper.className = 'pill';
-      helper.textContent = `${formatLKR(RATES.premiumPerItem)} per item`;
+        const helper = document.createElement('div');
+        helper.className = 'pill';
+        helper.textContent = `${formatLKR(RATES.premiumPerItem)} per item`;
 
-      const preview = document.createElement('p');
-      preview.textContent = 'Amount: LKR 0';
-      preview.style.fontWeight = '600';
+        const preview = document.createElement('p');
+        preview.textContent = 'Amount: LKR 0';
+        preview.style.fontWeight = '600';
 
-      inputGroup.appendChild(label);
-      inputGroup.appendChild(input);
-      inputGroup.appendChild(helper);
-      body.appendChild(inputGroup);
-      body.appendChild(preview);
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(helper);
+        body.appendChild(inputGroup);
+        body.appendChild(preview);
 
-      const actions = document.createElement('div');
-      actions.className = 'modal-actions';
+        const actions = document.createElement('div');
+        actions.className = 'modal-actions';
 
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'secondary-btn';
-      cancelBtn.type = 'button';
-      cancelBtn.textContent = 'Cancel';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'secondary-btn';
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Cancel';
 
-      const confirmBtn = document.createElement('button');
-      confirmBtn.className = 'primary-btn';
-      confirmBtn.type = 'button';
-      confirmBtn.textContent = 'Confirm';
-      confirmBtn.disabled = true;
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'primary-btn';
+        confirmBtn.type = 'button';
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.disabled = true;
 
-      actions.appendChild(cancelBtn);
-      actions.appendChild(confirmBtn);
+        actions.appendChild(cancelBtn);
+        actions.appendChild(confirmBtn);
 
-      modal.appendChild(title);
-      modal.appendChild(body);
-      modal.appendChild(actions);
+        modal.appendChild(title);
+        modal.appendChild(body);
+        modal.appendChild(actions);
 
-      const close = openModal(modal);
+        const close = openModal(modal);
 
-      function updatePreview() {
-        const value = parseInt(input.value, 10);
-        if (!isNaN(value) && value >= 1) {
-          preview.textContent = `Amount: ${formatLKR(value * RATES.premiumPerItem)}`;
-          confirmBtn.disabled = false;
-        } else {
-          preview.textContent = 'Amount: LKR 0';
-          confirmBtn.disabled = true;
+        function updatePreview() {
+            const value = parseInt(input.value, 10);
+            if (!isNaN(value) && value >= 1) {
+                preview.textContent = `Amount: ${formatLKR(value * RATES.premiumPerItem)}`;
+                confirmBtn.disabled = false;
+            } else {
+                preview.textContent = 'Amount: LKR 0';
+                confirmBtn.disabled = true;
+            }
         }
-      }
 
-      input.addEventListener('input', updatePreview);
+        input.addEventListener('input', updatePreview);
 
-      confirmBtn.addEventListener('click', () => {
-        const value = parseInt(input.value, 10);
-        if (isNaN(value) || value < 1) return;
-        addLine({
-          type: 'premiumService',
-          count: value,
-          amount: value * RATES.premiumPerItem
+        confirmBtn.addEventListener('click', () => {
+            const value = parseInt(input.value, 10);
+            if (isNaN(value) || value < 1) return;
+            addLine({
+                type: 'premiumService',
+                count: value,
+                amount: value * RATES.premiumPerItem
+            });
+            close();
         });
-        close();
-      });
 
-      cancelBtn.addEventListener('click', () => {
-        close();
-      });
+        cancelBtn.addEventListener('click', () => {
+            close();
+        });
     }
 
     function openPremiumAddonModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-content';
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
 
-      const title = document.createElement('h3');
-      title.textContent = 'Premium Care Add-on';
+        const title = document.createElement('h3');
+        title.textContent = 'Premium Care Add-on';
 
-      const body = document.createElement('div');
-      body.className = 'modal-body';
+        const body = document.createElement('div');
+        body.className = 'modal-body';
 
-      const inputGroup = document.createElement('div');
-      inputGroup.className = 'field-group';
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'field-group';
 
-      const label = document.createElement('label');
-      label.setAttribute('for', 'premiumAddonQty');
-      label.textContent = 'How many items need premium care?';
+        const label = document.createElement('label');
+        label.setAttribute('for', 'premiumAddonQty');
+        label.textContent = 'How many items need premium care?';
 
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.id = 'premiumAddonQty';
-      input.min = '1';
-      input.step = '1';
-      input.value = premiumAddonCount > 0 ? String(premiumAddonCount) : '';
-      input.placeholder = 'e.g. 2';
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.id = 'premiumAddonQty';
+        input.min = '1';
+        input.step = '1';
+        input.value = premiumAddonCount > 0 ? String(premiumAddonCount) : '';
+        input.placeholder = 'e.g. 2';
 
-      const helper = document.createElement('div');
-      helper.className = 'pill';
-      helper.textContent = `${formatLKR(RATES.premiumPerItem)} per item`;
+        const helper = document.createElement('div');
+        helper.className = 'pill';
+        helper.textContent = `${formatLKR(RATES.premiumPerItem)} per item`;
 
-      const preview = document.createElement('p');
-      preview.textContent = premiumAddonCount > 0 ? `Amount: ${formatLKR(premiumAddonCount * RATES.premiumPerItem)}` : 'Amount: LKR 0';
-      preview.style.fontWeight = '600';
+        const preview = document.createElement('p');
+        preview.textContent = premiumAddonCount > 0 ? `Amount: ${formatLKR(premiumAddonCount * RATES.premiumPerItem)}` : 'Amount: LKR 0';
+        preview.style.fontWeight = '600';
 
-      inputGroup.appendChild(label);
-      inputGroup.appendChild(input);
-      inputGroup.appendChild(helper);
-      body.appendChild(inputGroup);
-      body.appendChild(preview);
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(input);
+        inputGroup.appendChild(helper);
+        body.appendChild(inputGroup);
+        body.appendChild(preview);
 
-      const actions = document.createElement('div');
-      actions.className = 'modal-actions';
+        const actions = document.createElement('div');
+        actions.className = 'modal-actions';
 
-      const cancelBtn = document.createElement('button');
-      cancelBtn.className = 'secondary-btn';
-      cancelBtn.type = 'button';
-      cancelBtn.textContent = 'Cancel';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'secondary-btn';
+        cancelBtn.type = 'button';
+        cancelBtn.textContent = 'Cancel';
 
-      const confirmBtn = document.createElement('button');
-      confirmBtn.className = 'primary-btn';
-      confirmBtn.type = 'button';
-      confirmBtn.textContent = 'Confirm';
-      confirmBtn.disabled = premiumAddonCount === 0;
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'primary-btn';
+        confirmBtn.type = 'button';
+        confirmBtn.textContent = 'Confirm';
+        confirmBtn.disabled = premiumAddonCount === 0;
 
-      actions.appendChild(cancelBtn);
-      actions.appendChild(confirmBtn);
+        actions.appendChild(cancelBtn);
+        actions.appendChild(confirmBtn);
 
-      modal.appendChild(title);
-      modal.appendChild(body);
-      modal.appendChild(actions);
+        modal.appendChild(title);
+        modal.appendChild(body);
+        modal.appendChild(actions);
 
-      const close = openModal(modal, {
-        onClose: () => {
-          premiumToggle.checked = premiumAddonCount > 0;
+        const close = openModal(modal, {
+            onClose: () => {
+                premiumToggle.checked = premiumAddonCount > 0;
+            }
+        });
+
+        function updatePreview() {
+            const value = parseInt(input.value, 10);
+            if (!isNaN(value) && value >= 1) {
+                preview.textContent = `Amount: ${formatLKR(value * RATES.premiumPerItem)}`;
+                confirmBtn.disabled = false;
+            } else {
+                preview.textContent = 'Amount: LKR 0';
+                confirmBtn.disabled = true;
+            }
         }
-      });
 
-      function updatePreview() {
-        const value = parseInt(input.value, 10);
-        if (!isNaN(value) && value >= 1) {
-          preview.textContent = `Amount: ${formatLKR(value * RATES.premiumPerItem)}`;
-          confirmBtn.disabled = false;
-        } else {
-          preview.textContent = 'Amount: LKR 0';
-          confirmBtn.disabled = true;
-        }
-      }
+        input.addEventListener('input', updatePreview);
 
-      input.addEventListener('input', updatePreview);
+        confirmBtn.addEventListener('click', () => {
+            const value = parseInt(input.value, 10);
+            if (isNaN(value) || value < 1) return;
+            premiumAddonCount = value;
+            premiumToggle.checked = true;
+            recomputeTotals();
+            close();
+        });
 
-      confirmBtn.addEventListener('click', () => {
-        const value = parseInt(input.value, 10);
-        if (isNaN(value) || value < 1) return;
-        premiumAddonCount = value;
-        premiumToggle.checked = true;
-        recomputeTotals();
-        close();
-      });
-
-      cancelBtn.addEventListener('click', () => {
-        if (premiumAddonCount === 0) {
-          premiumToggle.checked = false;
-        }
-        close();
-      });
+        cancelBtn.addEventListener('click', () => {
+            if (premiumAddonCount === 0) {
+                premiumToggle.checked = false;
+            }
+            close();
+        });
     }
 
     function openConfirmationModal(total) {
-      const modal = document.createElement('div');
-      modal.className = 'modal-content';
+        const modal = document.createElement('div');
+        modal.className = 'modal-content';
 
-      const title = document.createElement('h3');
-      title.textContent = 'Confirm Order Details';
+        const title = document.createElement('h3');
+        title.textContent = 'Confirm Order Details';
 
-      const body = document.createElement('div');
-      body.className = 'modal-body confirmation-summary';
+        const body = document.createElement('div');
+        body.className = 'modal-body confirmation-summary';
 
-      const pickupInfo = document.createElement('p');
-      pickupInfo.innerHTML = `<strong>Pickup:</strong> ${new Date(pickupInput.value).toLocaleString()}`;
-      const deliveryInfo = document.createElement('p');
-      deliveryInfo.innerHTML = `<strong>Delivery:</strong> ${new Date(deliveryInput.value).toLocaleString()}`;
+        const pickupInfo = document.createElement('p');
+        pickupInfo.innerHTML = `<strong>Pickup:</strong> ${new Date(pickupInput.value).toLocaleString()}`;
+        const deliveryInfo = document.createElement('p');
+        deliveryInfo.innerHTML = `<strong>Delivery:</strong> ${new Date(deliveryInput.value).toLocaleString()}`;
 
-      const listTitle = document.createElement('p');
-      listTitle.innerHTML = '<strong>Services</strong>';
+        const listTitle = document.createElement('p');
+        listTitle.innerHTML = '<strong>Services</strong>';
 
-      const list = document.createElement('ul');
-      orderLines.forEach((line) => {
-        const item = document.createElement('li');
-        item.textContent = `${getLineTitle(line)} – ${formatLKR(line.amount)}`;
-        list.appendChild(item);
-      });
-      if (expressEnabled) {
-        const baseSubtotal = orderLines.reduce((sum, line) => sum + line.amount, 0);
-        const expressFee = Math.round(baseSubtotal * 0.25);
-        const item = document.createElement('li');
-        item.textContent = `Express Add-on – ${formatLKR(expressFee)}`;
-        list.appendChild(item);
-      }
-      if (premiumAddonCount > 0) {
-        const item = document.createElement('li');
-        item.textContent = `Premium Care Add-on – ${formatLKR(premiumAddonCount * RATES.premiumPerItem)}`;
-        list.appendChild(item);
-      }
+        const list = document.createElement('ul');
+        orderLines.forEach((line) => {
+            const item = document.createElement('li');
+            item.textContent = `${getLineTitle(line)} – ${formatLKR(line.amount)}`;
+            list.appendChild(item);
+        });
+        if (expressEnabled) {
+            const baseSubtotal = orderLines.reduce((sum, line) => sum + line.amount, 0);
+            const expressFee = Math.round(baseSubtotal * 0.25);
+            const item = document.createElement('li');
+            item.textContent = `Express Add-on – ${formatLKR(expressFee)}`;
+            list.appendChild(item);
+        }
+        if (premiumAddonCount > 0) {
+            const item = document.createElement('li');
+            item.textContent = `Premium Care Add-on – ${formatLKR(premiumAddonCount * RATES.premiumPerItem)}`;
+            list.appendChild(item);
+        }
 
-      const totalLine = document.createElement('p');
-      totalLine.innerHTML = `<strong>Total:</strong> ${formatLKR(total)}`;
+        const totalLine = document.createElement('p');
+        totalLine.innerHTML = `<strong>Total:</strong> ${formatLKR(total)}`;
 
-      body.appendChild(pickupInfo);
-      body.appendChild(deliveryInfo);
-      body.appendChild(listTitle);
-      body.appendChild(list);
-      body.appendChild(totalLine);
+        body.appendChild(pickupInfo);
+        body.appendChild(deliveryInfo);
+        body.appendChild(listTitle);
+        body.appendChild(list);
+        body.appendChild(totalLine);
 
-      const actions = document.createElement('div');
-      actions.className = 'modal-actions';
+        const actions = document.createElement('div');
+        actions.className = 'modal-actions';
 
-      const backBtn = document.createElement('button');
-      backBtn.className = 'secondary-btn';
-      backBtn.type = 'button';
-      backBtn.textContent = 'Back';
+        const backBtn = document.createElement('button');
+        backBtn.className = 'secondary-btn';
+        backBtn.type = 'button';
+        backBtn.textContent = 'Back';
 
-      const submitBtn = document.createElement('button');
-      submitBtn.className = 'primary-btn';
-      submitBtn.type = 'button';
-      submitBtn.textContent = 'Confirm & Submit';
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'primary-btn';
+        submitBtn.type = 'button';
+        submitBtn.textContent = 'Confirm & Submit';
 
-      actions.appendChild(backBtn);
-      actions.appendChild(submitBtn);
+        actions.appendChild(backBtn);
+        actions.appendChild(submitBtn);
 
-      modal.appendChild(title);
-      modal.appendChild(body);
-      modal.appendChild(actions);
+        modal.appendChild(title);
+        modal.appendChild(body);
+        modal.appendChild(actions);
 
-      const close = openModal(modal);
+        const close = openModal(modal);
 
-      backBtn.addEventListener('click', () => {
-        close();
-      });
+        backBtn.addEventListener('click', () => {
+            close();
+        });
 
-      submitBtn.addEventListener('click', () => {
-        alert('Order placed!');
-        close();
-      });
+        submitBtn.addEventListener('click', () => {
+            alert('Order placed!');
+            close();
+        });
     }
 
     function toggleExpress(fromCard = false) {
-      if (fromCard) {
-        expressEnabled = !expressEnabled;
-        expressToggle.checked = expressEnabled;
-      } else {
-        expressEnabled = expressToggle.checked;
-      }
-      recomputeTotals();
+        if (fromCard) {
+            expressEnabled = !expressEnabled;
+            expressToggle.checked = expressEnabled;
+        } else {
+            expressEnabled = expressToggle.checked;
+        }
+        recomputeTotals();
     }
 
     function handlePremiumToggle() {
-      if (premiumToggle.checked) {
-        openPremiumAddonModal();
-      } else {
-        premiumAddonCount = 0;
-        recomputeTotals();
-      }
+        if (premiumToggle.checked) {
+            openPremiumAddonModal();
+        } else {
+            premiumAddonCount = 0;
+            recomputeTotals();
+        }
     }
 
     document.querySelectorAll('.service-card .primary-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const service = btn.getAttribute('data-service');
-        switch (service) {
-          case 'laundry':
-            openWeightModal('laundry');
-            break;
-          case 'pressing':
-            openCategoryModal('pressing');
-            break;
-          case 'washiron':
-            openCategoryModal('washiron');
-            break;
-          case 'dry':
-            openWeightModal('dry');
-            break;
-          case 'express':
-            toggleExpress(true);
-            break;
-          case 'premium':
-            openPremiumServiceModal();
-            break;
-          default:
-            break;
-        }
-      });
+        btn.addEventListener('click', () => {
+            const service = btn.getAttribute('data-service');
+            switch (service) {
+                case 'laundry':
+                    openWeightModal('laundry');
+                    break;
+                case 'pressing':
+                    openCategoryModal('pressing');
+                    break;
+                case 'washiron':
+                    openCategoryModal('washiron');
+                    break;
+                case 'dry':
+                    openWeightModal('dry');
+                    break;
+                case 'express':
+                    toggleExpress(true);
+                    break;
+                case 'premium':
+                    openPremiumServiceModal();
+                    break;
+                default:
+                    break;
+            }
+        });
     });
 
     expressToggle.addEventListener('change', () => toggleExpress(false));
     premiumToggle.addEventListener('change', handlePremiumToggle);
 
     pickupInput.addEventListener('change', () => {
-      if (pickupInput.value) {
-        deliveryInput.min = pickupInput.value;
-      }
-      validateDates();
-      recomputeTotals();
+        if (pickupInput.value) {
+            deliveryInput.min = pickupInput.value;
+        }
+        validateDates();
+        recomputeTotals();
     });
 
     deliveryInput.addEventListener('change', () => {
-      validateDates();
-      recomputeTotals();
+        validateDates();
+        recomputeTotals();
     });
 
     placeOrderBtn.addEventListener('click', () => {
-      const { valid } = validateDates();
-      if (!valid) return;
-      const baseSubtotal = orderLines.reduce((sum, line) => sum + line.amount, 0);
-      const expressFee = expressEnabled ? Math.round(baseSubtotal * 0.25) : 0;
-      const premiumAddon = premiumAddonCount > 0 ? premiumAddonCount * RATES.premiumPerItem : 0;
-      const total = baseSubtotal + expressFee + premiumAddon;
-      if (total <= 0) return;
-      openConfirmationModal(total);
+        const { valid } = validateDates();
+        if (!valid) return;
+        const baseSubtotal = orderLines.reduce((sum, line) => sum + line.amount, 0);
+        const expressFee = expressEnabled ? Math.round(baseSubtotal * 0.25) : 0;
+        const premiumAddon = premiumAddonCount > 0 ? premiumAddonCount * RATES.premiumPerItem : 0;
+        const total = baseSubtotal + expressFee + premiumAddon;
+        if (total <= 0) return;
+        openConfirmationModal(total);
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      const now = nowLocalForDatetimeInput();
-      pickupInput.min = now;
-      deliveryInput.min = now;
-      recomputeTotals();
+        const now = nowLocalForDatetimeInput();
+        pickupInput.min = now;
+        deliveryInput.min = now;
+        recomputeTotals();
     });
-  </script>
+</script>
 </body>
 </html>
