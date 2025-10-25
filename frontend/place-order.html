@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Place New Order - Laundry Management System</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Place Order | SmartFold</title>
+    <link rel="stylesheet" href="style.css" />
     <style>
         :root {
-            --primary-color: #2f80ed;
-            --accent-color: #56ccf2;
-            --bg-color: #f5f7fb;
-            --text-color: #333;
-            --border-color: #e0e6f0;
+            --sf-primary: var(--primary, #1e40af);
+            --sf-accent: var(--accent, #2563eb);
+            --sf-bg: var(--bg, #f9fafb);
+            --sf-border: var(--border, #e5e7eb);
+            --sf-text: var(--text, #0f172a);
+            --sf-muted: var(--muted, #6b7280);
         }
 
         * {
@@ -19,936 +21,1074 @@
 
         body {
             margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-color);
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--sf-bg);
+            color: var(--sf-text);
         }
 
-        h1 {
-            text-align: center;
-            margin: 1.5rem 0;
-            font-weight: 600;
-            color: #1a2a4a;
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
-        .page-wrapper {
-            max-width: 1200px;
-            margin: 0 auto 3rem;
-            padding: 0 1.5rem 2rem;
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
         }
 
-        .layout {
+        .topbar {
             display: flex;
-            gap: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 24px;
         }
 
-        .service-menu {
-            flex: 2;
+        .topbar img {
+            height: 36px;
+        }
+
+        .topbar nav {
+            display: flex;
+            gap: 20px;
+            font-weight: 500;
+        }
+
+        .topbar nav a:hover {
+            color: var(--sf-accent);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        .page-title {
+            margin-bottom: 24px;
+        }
+
+        .page-title h1 {
+            margin: 0 0 8px;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .page-title p {
+            margin: 0;
+            color: var(--sf-muted);
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .service-menu,
+        .schedule-card {
+            padding: 28px;
+        }
+
+        .service-menu header,
+        .schedule-card header,
+        .summary-card header {
+            margin-bottom: 18px;
+        }
+
+        .service-menu header h2,
+        .schedule-card header h2,
+        .summary-card header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .service-menu header p,
+        .schedule-card header p {
+            margin: 6px 0 0;
+            color: var(--sf-muted);
+            font-size: 0.95rem;
+        }
+
+        .service-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem;
-            align-content: flex-start;
+            gap: 18px;
         }
 
         .service-card {
-            background: #fff;
-            padding: 1.5rem;
-            border-radius: 14px;
-            box-shadow: 0 12px 35px rgba(31, 59, 117, 0.08);
-            border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            gap: 12px;
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid var(--sf-border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         .service-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(31, 59, 117, 0.12);
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: 0 18px 30px rgba(37, 99, 235, 0.08);
         }
 
-        .service-card h2 {
-            margin: 0 0 0.75rem;
+        .service-card h3 {
+            margin: 0;
             font-size: 1.1rem;
-            color: #12366f;
+            font-weight: 600;
         }
 
         .service-card p {
-            margin: 0 0 1rem;
-            line-height: 1.5;
+            margin: 0;
+            color: var(--sf-muted);
+            font-size: 0.92rem;
+        }
+
+        .service-card strong {
+            display: block;
+            color: var(--sf-primary);
             font-size: 0.95rem;
-            color: #4f5d78;
         }
 
         .service-card button {
-            padding: 0.6rem 1rem;
+            margin-top: auto;
             border: none;
-            border-radius: 8px;
-            background: var(--primary-color);
+            border-radius: 12px;
+            padding: 12px 16px;
+            background: var(--sf-primary);
             color: #fff;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
 
         .service-card button:hover {
-            background: #1c5fc2;
+            background: var(--sf-accent);
+            transform: translateY(-1px);
         }
 
-        .order-summary {
-            flex: 1.2;
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            box-shadow: 0 12px 35px rgba(31, 59, 117, 0.08);
-            position: sticky;
-            top: 1.5rem;
-            height: fit-content;
-        }
-
-        .summary-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .summary-header h2 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: #12366f;
-        }
-
-        .datetime-section {
-            margin-top: 1.5rem;
+        .schedule-grid {
             display: grid;
-            gap: 1rem;
+            gap: 16px;
         }
 
-        .datetime-field label {
+        label {
+            font-weight: 500;
             display: block;
-            font-weight: 600;
-            margin-bottom: 0.35rem;
-            color: #12366f;
+            margin-bottom: 6px;
         }
 
-        .datetime-field input {
+        input,
+        textarea,
+        select {
             width: 100%;
-            padding: 0.6rem 0.8rem;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid var(--sf-border);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--sf-accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            outline: none;
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .helper-text {
+            margin: 6px 0 0;
+            font-size: 0.85rem;
+            color: #dc2626;
+            min-height: 18px;
+        }
+
+        .summary-card {
+            position: sticky;
+            top: 104px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .summary-services {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px dashed var(--sf-border);
+            border-radius: 16px;
+            padding: 16px;
+            background: rgba(241, 245, 249, 0.45);
+        }
+
+        .summary-empty {
+            text-align: center;
+            color: var(--sf-muted);
             font-size: 0.95rem;
         }
 
-        .error-message {
-            margin-top: 0.35rem;
-            color: #d9534f;
-            font-size: 0.85rem;
-            min-height: 1rem;
-        }
-
-        .summary-list {
-            margin-top: 1.5rem;
+        .summary-service {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 8px;
         }
 
-        .summary-service {
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 1rem;
-        }
-
-        .summary-service:last-of-type {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .service-line {
+        .summary-service-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 1rem;
+            gap: 12px;
             font-weight: 600;
         }
 
-        .service-line span:first-child {
-            flex: 1;
-        }
-
-        .service-actions {
-            margin-top: 0.75rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .remove-btn {
-            background: transparent;
-            border: 1px solid #f06a6a;
-            color: #f06a6a;
-            padding: 0.35rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        .remove-btn:hover {
-            background: rgba(240, 106, 106, 0.1);
-        }
-
-        .category-list {
-            margin: 0.75rem 0 0;
-            padding-left: 1.2rem;
-            color: #4f5d78;
-            font-size: 0.9rem;
-        }
-
-        .totals {
-            margin-top: 1.5rem;
+        .summary-service-details {
+            padding-left: 12px;
             display: flex;
             flex-direction: column;
-            gap: 0.6rem;
-            font-size: 1rem;
+            gap: 6px;
         }
 
-        .totals .line {
+        .summary-service-details span {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            font-size: 0.95rem;
+        }
+
+        .summary-amount {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .remove-service {
+            border: none;
+            background: transparent;
+            color: var(--sf-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .remove-service:hover {
+            background: rgba(226, 232, 240, 0.7);
+            color: #dc2626;
+        }
+
+        .summary-totals {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 1px solid var(--sf-border);
+            padding-top: 16px;
+        }
+
+        .summary-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.95rem;
         }
 
-        .totals .total-line {
-            font-size: 1.2rem;
+        .summary-row.total {
+            padding-top: 10px;
+            margin-top: 6px;
+            border-top: 1px solid var(--sf-border);
+            font-size: 1.05rem;
             font-weight: 700;
-            color: #12366f;
         }
 
-        .addons {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 12px;
-            background: #f8fbff;
-            border: 1px dashed var(--border-color);
+        .addon-options {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(248, 250, 252, 0.8);
         }
 
         .addon-option {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            justify-content: space-between;
+            gap: 16px;
             font-size: 0.95rem;
         }
 
-        .premium-count {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .addon-option label {
+            margin: 0;
+            font-weight: 500;
+            color: var(--sf-text);
         }
 
-        .premium-count input {
-            width: 90px;
-            padding: 0.4rem 0.5rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .hidden {
-            display: none !important;
+        .addon-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--sf-primary);
+            cursor: pointer;
         }
 
         .place-order-btn {
-            margin-top: 1.5rem;
             width: 100%;
-            padding: 0.85rem;
+            padding: 16px;
             border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 16px;
+            background: var(--sf-primary);
             color: #fff;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.05rem;
             cursor: pointer;
-            box-shadow: 0 12px 25px rgba(47, 128, 237, 0.25);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
 
         .place-order-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 30px rgba(47, 128, 237, 0.35);
+            background: var(--sf-accent);
+            transform: translateY(-1px);
         }
 
-        .modal {
+        .place-order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .notes-field {
+            margin-top: 16px;
+        }
+
+        .modal-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(17, 25, 40, 0.45);
+            background: rgba(15, 23, 42, 0.55);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            z-index: 1000;
+            padding: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease;
         }
 
-        .modal.hidden {
-            display: none;
+        .modal-backdrop.open {
+            opacity: 1;
+            visibility: visible;
         }
 
-        .modal-content {
+        .modal {
             background: #fff;
-            width: min(100%, 520px);
-            padding: 1.5rem;
-            border-radius: 14px;
+            border-radius: 18px;
+            max-width: 560px;
+            width: 100%;
+            padding: 28px;
             position: relative;
-            box-shadow: 0 20px 45px rgba(23, 42, 89, 0.25);
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
         }
 
-        .modal-content h3 {
-            margin-top: 0;
-            color: #12366f;
+        .modal header h3 {
+            margin: 0 0 8px;
+            font-size: 1.25rem;
         }
 
-        .close-modal {
+        .modal header p {
+            margin: 0;
+            color: var(--sf-muted);
+            font-size: 0.95rem;
+        }
+
+        .modal-close {
             position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            font-size: 1.4rem;
-            background: none;
+            top: 16px;
+            right: 16px;
             border: none;
-            color: #4f5d78;
+            background: transparent;
+            font-size: 1.25rem;
             cursor: pointer;
+            color: var(--sf-muted);
+        }
+
+        .modal-body {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .modal-table thead {
+            background: rgba(248, 250, 252, 0.9);
+        }
+
+        .modal-table th,
+        .modal-table td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--sf-border);
+            font-size: 0.95rem;
+        }
+
+        .modal-table input[type="number"] {
+            width: 90px;
         }
 
         .modal-actions {
-            margin-top: 1.5rem;
+            margin-top: 24px;
             display: flex;
             justify-content: flex-end;
-            gap: 0.75rem;
+            gap: 12px;
         }
 
         .modal-actions button {
-            padding: 0.6rem 1.1rem;
-            border-radius: 8px;
             border: none;
-            cursor: pointer;
+            border-radius: 12px;
+            padding: 12px 18px;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .modal-actions .secondary {
-            background: #f1f3f9;
-            color: #4f5d78;
+            background: rgba(226, 232, 240, 0.7);
+            color: var(--sf-text);
         }
 
         .modal-actions .primary {
-            background: var(--primary-color);
+            background: var(--sf-primary);
             color: #fff;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        th, td {
-            padding: 0.6rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background: #f5f7fb;
-            color: #12366f;
-        }
-
-        td input[type="number"] {
-            width: 80px;
-            padding: 0.35rem 0.45rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .info-text {
-            margin-top: 0.5rem;
+        .modal-error {
             font-size: 0.9rem;
-            color: #4f5d78;
+            color: #dc2626;
+            min-height: 18px;
         }
 
-        @media (max-width: 992px) {
-            .layout {
-                flex-direction: column;
+        @media (max-width: 960px) {
+            .app-grid {
+                grid-template-columns: 1fr;
             }
 
-            .order-summary {
+            .summary-card {
                 position: static;
             }
         }
 
         @media (max-width: 600px) {
-            .service-menu {
+            .topbar {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .service-menu,
+            .schedule-card,
+            .summary-card {
+                padding: 22px;
+            }
+
+            .service-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .modal-content {
-                padding: 1.25rem;
-            }
-
-            table th:nth-child(2),
-            table td:nth-child(2) {
-                display: none;
-            }
-
-            table th, table td {
-                font-size: 0.85rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="page-wrapper">
-        <h1>Place New Laundry Order</h1>
-        <div class="layout">
-            <section class="service-menu" aria-label="Service Menu">
-                <article class="service-card" data-service="laundry">
-                    <h2>Laundry (Wash Only)</h2>
-                    <p>Standard wash cycle for everyday garments. Billed per kilogram.</p>
-                    <p><strong>250 LKR</strong> per kg</p>
-                    <button type="button">Select</button>
-                </article>
-                <article class="service-card" data-service="pressing">
-                    <h2>Pressing (Iron Only)</h2>
-                    <p>Wrinkle-free finish for all garment types. Billed per item.</p>
-                    <p>Prices vary by category.</p>
-                    <button type="button">Select</button>
-                </article>
-                <article class="service-card" data-service="washIron">
-                    <h2>Wash &amp; Iron</h2>
-                    <p>Complete care: washed, dried, and expertly pressed.</p>
-                    <p>Pressing rate + <strong>25 LKR</strong> per item.</p>
-                    <button type="button">Select</button>
-                </article>
-                <article class="service-card" data-service="dryCleaning">
-                    <h2>Dry Cleaning</h2>
-                    <p>Professional solvent-based cleaning for delicate fabrics.</p>
-                    <p><strong>400 LKR</strong> per kg</p>
-                    <button type="button">Select</button>
-                </article>
-                <article class="service-card" data-service="express">
-                    <h2>Express Service</h2>
-                    <p>Prioritize your order with 25% faster turnaround.</p>
-                    <p><strong>+25%</strong> of selected services.</p>
-                    <button type="button">Select</button>
-                </article>
-                <article class="service-card" data-service="premium">
-                    <h2>Premium / Delicate Care</h2>
-                    <p>Individually handled garments with delicate-only detergents.</p>
-                    <p><strong>400 LKR</strong> per item</p>
-                    <button type="button">Select</button>
-                </article>
-            </section>
-
-            <aside class="order-summary" aria-label="Current Order Summary">
-                <div class="summary-header">
+    <header>
+        <div class="topbar">
+            <img src="/frontend/assets/logo.png" alt="SmartFold" />
+            <nav>
+                <a href="#">My Orders</a>
+                <a href="#">Messages</a>
+                <a href="#">Logout</a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <div class="page-title">
+            <h1>Place New Order</h1>
+            <p>Select your services and schedule pickup & delivery in minutes.</p>
+        </div>
+        <div class="app-grid">
+            <div class="left-column">
+                <section class="card service-menu">
+                    <header>
+                        <h2>Service Menu</h2>
+                        <p>Choose a service to configure it. You can add multiple services to the same order.</p>
+                    </header>
+                    <div class="service-grid">
+                        <article class="service-card">
+                            <h3>Laundry (Wash Only)</h3>
+                            <p>Freshly washed clothes priced per kilogram.</p>
+                            <strong>250 LKR / kg</strong>
+                            <button type="button" data-service="laundry">Select</button>
+                        </article>
+                        <article class="service-card">
+                            <h3>Pressing (Iron Only)</h3>
+                            <p>Category based pricing for crisp, ironed garments.</p>
+                            <strong>From 50 LKR / item</strong>
+                            <button type="button" data-service="pressing">Select</button>
+                        </article>
+                        <article class="service-card">
+                            <h3>Wash &amp; Iron</h3>
+                            <p>Washed and ironed with gentle care.</p>
+                            <strong>Pressing rate + 25 LKR / item</strong>
+                            <button type="button" data-service="washIron">Select</button>
+                        </article>
+                        <article class="service-card">
+                            <h3>Dry Cleaning</h3>
+                            <p>Professional dry cleaning priced per kilogram.</p>
+                            <strong>400 LKR / kg</strong>
+                            <button type="button" data-service="dryCleaning">Select</button>
+                        </article>
+                        <article class="service-card">
+                            <h3>Express Service</h3>
+                            <p>Accelerate your order with a 25% express surcharge.</p>
+                            <strong>+25% of subtotal</strong>
+                            <button type="button" data-service="express">Select</button>
+                        </article>
+                        <article class="service-card">
+                            <h3>Premium / Delicate Care</h3>
+                            <p>Extra gentle handling for delicate garments.</p>
+                            <strong>+400 LKR per eligible item</strong>
+                            <button type="button" data-service="premium">Select</button>
+                        </article>
+                    </div>
+                </section>
+                <section class="card schedule-card">
+                    <header>
+                        <h2>Schedule Pickup &amp; Delivery</h2>
+                        <p>We’ll send reminders before each appointment.</p>
+                    </header>
+                    <div class="schedule-grid">
+                        <div>
+                            <label for="pickupDate">Pickup Date &amp; Time</label>
+                            <input type="datetime-local" id="pickupDate" />
+                            <p class="helper-text" id="pickupError"></p>
+                        </div>
+                        <div>
+                            <label for="deliveryDate">Delivery Date &amp; Time</label>
+                            <input type="datetime-local" id="deliveryDate" />
+                            <p class="helper-text" id="deliveryError"></p>
+                        </div>
+                        <div class="notes-field">
+                            <label for="orderNotes">Notes (optional)</label>
+                            <textarea id="orderNotes" placeholder="Add pickup notes, gate code, or garment instructions..."></textarea>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <aside class="card summary-card">
+                <header>
                     <h2>Current Order Summary</h2>
-                    <span class="info-text">Review and confirm your services</span>
+                    <p style="margin: 6px 0 0; color: var(--sf-muted); font-size: 0.95rem;">
+                        Add services on the left to see a detailed price breakdown.
+                    </p>
+                </header>
+                <div class="summary-services" id="summaryServices">
+                    <div class="summary-empty">No services added yet.</div>
                 </div>
-
-                <div class="datetime-section">
-                    <div class="datetime-field">
-                        <label for="pickupDate">Pickup Date &amp; Time</label>
-                        <input type="datetime-local" id="pickupDate" required>
-                        <div class="error-message" id="pickupError"></div>
+                <div class="addon-options">
+                    <div class="addon-option">
+                        <label for="expressToggle">Express Service (+25%)</label>
+                        <input type="checkbox" id="expressToggle" />
                     </div>
-                    <div class="datetime-field">
-                        <label for="deliveryDate">Delivery Date &amp; Time</label>
-                        <input type="datetime-local" id="deliveryDate" required>
-                        <div class="error-message" id="deliveryError"></div>
-                    </div>
-                </div>
-
-                <div class="summary-list" id="summaryItems">
-                    <p class="info-text">No services selected yet.</p>
-                </div>
-
-                <div class="addons">
-                    <label class="addon-option">
-                        <input type="checkbox" id="expressToggle">
-                        <span>Express Service (+25%)</span>
-                    </label>
-                    <div class="addon-option premium-option">
-                        <input type="checkbox" id="premiumToggle">
-                        <span>Premium Care (+LKR 400 per item)</span>
-                    </div>
-                    <div class="premium-count hidden" id="premiumCountWrapper">
-                        <label for="premiumCount">Number of premium items</label>
-                        <input type="number" id="premiumCount" min="0" value="0">
+                    <div class="addon-option">
+                        <label for="premiumToggle">Premium Care (+LKR 400 / item)</label>
+                        <input type="checkbox" id="premiumToggle" />
                     </div>
                 </div>
-
-                <div class="totals">
-                    <div class="line" id="subtotalLine">
-                        <span>Subtotal:</span>
-                        <strong id="subtotalAmount">LKR 0</strong>
+                <div class="summary-totals">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span class="summary-amount" id="subtotalAmount">LKR 0</span>
                     </div>
-                    <div class="line hidden" id="expressLine">
-                        <span>Express Add-on (+25%):</span>
-                        <strong id="expressAmount">LKR 0</strong>
+                    <div class="summary-row" id="expressRow" style="display: none;">
+                        <span>Express Add-on (+25%)</span>
+                        <span class="summary-amount" id="expressAmount">LKR 0</span>
                     </div>
-                    <div class="line hidden" id="premiumLine">
-                        <span>Premium Care:</span>
-                        <strong id="premiumAmount">LKR 0</strong>
+                    <div class="summary-row" id="premiumRow" style="display: none;">
+                        <span>Premium Care</span>
+                        <span class="summary-amount" id="premiumAmount">LKR 0</span>
                     </div>
-                    <hr>
-                    <div class="line total-line">
-                        <span>TOTAL:</span>
-                        <strong id="totalAmount">LKR 0</strong>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span class="summary-amount" id="totalAmount">LKR 0</span>
                     </div>
                 </div>
-
-                <button class="place-order-btn" id="placeOrderBtn" type="button">Place Order</button>
+                <button type="button" class="place-order-btn" id="placeOrderBtn">Place Order</button>
             </aside>
         </div>
-    </div>
+    </main>
 
-    <div class="modal hidden" id="serviceModal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="modal-content">
-            <button class="close-modal" id="closeModal" aria-label="Close">&times;</button>
-            <div id="modalBody"></div>
+    <div class="modal-backdrop" id="serviceModal">
+        <div class="modal">
+            <button class="modal-close" type="button" aria-label="Close" id="modalClose">&times;</button>
+            <header>
+                <h3 id="modalTitle">Configure Service</h3>
+                <p id="modalSubtitle"></p>
+            </header>
+            <div class="modal-body" id="modalBody"></div>
+            <p class="modal-error" id="modalError"></p>
+            <div class="modal-actions">
+                <button type="button" class="secondary" id="modalCancel">Cancel</button>
+                <button type="button" class="primary" id="modalConfirm">Confirm</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const serviceCards = document.querySelectorAll('.service-card button');
-        const modal = document.getElementById('serviceModal');
-        const modalBody = document.getElementById('modalBody');
-        const closeModalBtn = document.getElementById('closeModal');
-        const summaryItems = document.getElementById('summaryItems');
-        const expressToggle = document.getElementById('expressToggle');
-        const premiumToggle = document.getElementById('premiumToggle');
-        const premiumCountWrapper = document.getElementById('premiumCountWrapper');
-        const premiumCountInput = document.getElementById('premiumCount');
-        const subtotalAmount = document.getElementById('subtotalAmount');
-        const expressLine = document.getElementById('expressLine');
-        const expressAmountEl = document.getElementById('expressAmount');
-        const premiumLine = document.getElementById('premiumLine');
-        const premiumAmountEl = document.getElementById('premiumAmount');
-        const totalAmountEl = document.getElementById('totalAmount');
-        const placeOrderBtn = document.getElementById('placeOrderBtn');
-        const pickupInput = document.getElementById('pickupDate');
-        const deliveryInput = document.getElementById('deliveryDate');
-        const pickupError = document.getElementById('pickupError');
-        const deliveryError = document.getElementById('deliveryError');
+        const SERVICES = {
+            laundry: {
+                label: "Laundry (Wash Only)",
+                unit: "kg",
+                rate: 250,
+            },
+            dryCleaning: {
+                label: "Dry Cleaning",
+                unit: "kg",
+                rate: 400,
+            },
+            pressing: {
+                label: "Pressing (Iron Only)",
+                unit: "items",
+            },
+            washIron: {
+                label: "Wash & Iron",
+                unit: "items",
+            },
+        };
 
-        let orderItems = [];
-        let activeService = null;
-
-        const categoryPricing = [
-            { key: 'casual', label: 'Casual Wear', pressing: 50, washIron: 75 },
-            { key: 'formal', label: 'Formal Wear', pressing: 75, washIron: 100 },
-            { key: 'ethnic', label: 'Ethnic / Traditional', pressing: 100, washIron: 125 },
-            { key: 'bedding', label: 'Bedding & Linen', pressing: 120, washIron: 145 },
-            { key: 'curtains', label: 'Curtains & Drapes', pressing: 150, washIron: 175 },
-            { key: 'kids', label: 'Kids Wear', pressing: 60, washIron: 85 },
-            { key: 'delicates', label: 'Delicates / Premium', pressing: 200, washIron: 225 }
+        const CATEGORY_RATES = [
+            { key: "Casual Wear", pressing: 50, washIron: 75 },
+            { key: "Formal Wear", pressing: 75, washIron: 100 },
+            { key: "Ethnic / Traditional", pressing: 100, washIron: 125 },
+            { key: "Bedding & Linen", pressing: 120, washIron: 145 },
+            { key: "Curtains & Drapes", pressing: 150, washIron: 175 },
+            { key: "Kids Wear", pressing: 60, washIron: 85 },
+            { key: "Delicates / Premium", pressing: 200, washIron: 225 },
         ];
 
-        const formatter = new Intl.NumberFormat('en-LK', {
-            style: 'currency',
-            currency: 'LKR',
-            maximumFractionDigits: 0
-        });
+        const EXPRESS_PERCENT = 0.25;
+        const PREMIUM_RATE = 400;
 
-        serviceCards.forEach(button => {
-            button.addEventListener('click', event => {
-                const service = event.currentTarget.closest('.service-card').dataset.service;
-                openModal(service);
-            });
-        });
+        const summaryServicesEl = document.getElementById("summaryServices");
+        const subtotalAmountEl = document.getElementById("subtotalAmount");
+        const expressRowEl = document.getElementById("expressRow");
+        const expressAmountEl = document.getElementById("expressAmount");
+        const premiumRowEl = document.getElementById("premiumRow");
+        const premiumAmountEl = document.getElementById("premiumAmount");
+        const totalAmountEl = document.getElementById("totalAmount");
+        const expressToggleEl = document.getElementById("expressToggle");
+        const premiumToggleEl = document.getElementById("premiumToggle");
+        const placeOrderBtn = document.getElementById("placeOrderBtn");
+        const pickupInput = document.getElementById("pickupDate");
+        const deliveryInput = document.getElementById("deliveryDate");
+        const pickupError = document.getElementById("pickupError");
+        const deliveryError = document.getElementById("deliveryError");
 
-        closeModalBtn.addEventListener('click', hideModal);
-        modal.addEventListener('click', event => {
-            if (event.target === modal) {
-                hideModal();
-            }
-        });
+        const modalBackdrop = document.getElementById("serviceModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalSubtitle = document.getElementById("modalSubtitle");
+        const modalBody = document.getElementById("modalBody");
+        const modalError = document.getElementById("modalError");
+        const modalConfirm = document.getElementById("modalConfirm");
+        const modalCancel = document.getElementById("modalCancel");
+        const modalClose = document.getElementById("modalClose");
 
-        function openModal(service) {
-            activeService = service;
-            modal.classList.remove('hidden');
-            modal.setAttribute('aria-hidden', 'false');
+        let currentModalConfig = null;
+        let orderEntries = [];
 
-            if (service === 'laundry' || service === 'dryCleaning') {
-                renderWeightModal(service);
-            } else if (service === 'pressing' || service === 'washIron') {
-                renderCategoryModal(service);
-            } else if (service === 'express') {
-                renderExpressModal();
-            } else if (service === 'premium') {
-                renderPremiumModal();
-            }
+        function formatAmount(value) {
+            const rounded = Math.round(value);
+            return `LKR ${rounded.toLocaleString("en-LK")}`;
         }
 
-        function hideModal() {
-            modal.classList.add('hidden');
-            modal.setAttribute('aria-hidden', 'true');
-            modalBody.innerHTML = '';
-            activeService = null;
+        function getMinDateString() {
+            const now = new Date();
+            now.setSeconds(0, 0);
+            const offset = now.getTimezoneOffset();
+            const localISOTime = new Date(now.getTime() - offset * 60000)
+                .toISOString()
+                .slice(0, 16);
+            return localISOTime;
         }
 
-        function renderWeightModal(service) {
-            const heading = service === 'laundry' ? 'Laundry (Wash Only)' : 'Dry Cleaning';
-            const rate = service === 'laundry' ? 250 : 400;
-
-            modalBody.innerHTML = `
-                <h3>${heading}</h3>
-                <p class="info-text">Enter the total weight in kilograms for this service.</p>
-                <label for="weightInput">Weight (kg)</label>
-                <input type="number" id="weightInput" min="0" step="0.5" placeholder="e.g. 3.5">
-                <div class="modal-actions">
-                    <button class="secondary" type="button" id="cancelModal">Cancel</button>
-                    <button class="primary" type="button" id="confirmModal">Add to Order</button>
-                </div>
-            `;
-
-            document.getElementById('cancelModal').addEventListener('click', hideModal);
-            document.getElementById('confirmModal').addEventListener('click', () => {
-                const weightValue = parseFloat(document.getElementById('weightInput').value);
-                if (!weightValue || weightValue <= 0) {
-                    alert('Please enter a valid weight greater than 0.');
-                    return;
-                }
-
-                const total = Math.round(weightValue * rate);
-                const item = {
-                    id: Date.now(),
-                    type: service,
-                    name: service === 'laundry' ? 'Laundry (Wash Only)' : 'Dry Cleaning',
-                    quantityLabel: `${weightValue} kg`,
-                    total: total
-                };
-
-                addOrderItem(item);
-                hideModal();
-            });
+        function setInitialMinDates() {
+            const minValue = getMinDateString();
+            pickupInput.min = minValue;
+            deliveryInput.min = minValue;
         }
 
-        function renderCategoryModal(service) {
-            const isWashIron = service === 'washIron';
-            const heading = isWashIron ? 'Wash & Iron' : 'Pressing (Iron Only)';
-            const info = isWashIron ? 'Enter the quantity for each clothing category. Wash & Iron is charged per item at pressing rate + 25 LKR.' : 'Enter the quantity for each clothing category. Pressing is charged per item.';
-            const priceHeading = isWashIron ? 'Wash & Iron (LKR)' : 'Pressing (LKR)';
+        function openModal(config) {
+            currentModalConfig = config;
+            modalError.textContent = "";
+            modalBackdrop.classList.add("open");
+            modalBackdrop.setAttribute("aria-hidden", "false");
+            buildModalContent(config);
+        }
 
-            const rows = categoryPricing.map(category => `
-                <tr>
-                    <td>${category.label}</td>
-                    <td>${isWashIron ? category.washIron : category.pressing}</td>
-                    <td><input type="number" min="0" value="0" id="${service}-${category.key}"></td>
-                </tr>
-            `).join('');
+        function closeModal() {
+            currentModalConfig = null;
+            modalBackdrop.classList.remove("open");
+            modalBackdrop.setAttribute("aria-hidden", "true");
+        }
 
-            modalBody.innerHTML = `
-                <h3>${heading}</h3>
-                <p class="info-text">${info}</p>
-                <table>
+        function buildModalContent(config) {
+            modalBody.innerHTML = "";
+            modalSubtitle.textContent = "";
+
+            if (config.mode === "weight") {
+                modalTitle.textContent = SERVICES[config.service].label;
+                modalSubtitle.textContent = `Enter the total weight (in kilograms) for ${SERVICES[config.service].label}.`;
+
+                const wrapper = document.createElement("div");
+                wrapper.innerHTML = `
+                    <label for="serviceWeight">Weight (kg)</label>
+                    <input type="number" id="serviceWeight" min="0.5" step="0.5" placeholder="e.g. 3" />
+                `;
+                modalBody.appendChild(wrapper);
+                modalConfirm.textContent = "Add to Order";
+            } else if (config.mode === "categories") {
+                const serviceLabel = SERVICES[config.service].label;
+                modalTitle.textContent = serviceLabel;
+                modalSubtitle.textContent = "Enter quantities for each clothing category.";
+
+                const table = document.createElement("table");
+                table.className = "modal-table";
+                table.innerHTML = `
                     <thead>
                         <tr>
                             <th>Category</th>
-                            <th>${priceHeading}</th>
+                            <th>Rate (LKR)</th>
                             <th>Quantity</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${rows}
+                        ${CATEGORY_RATES.map((category, index) => {
+                            const rate = category[config.service];
+                            return `
+                                <tr>
+                                    <td>${category.key}</td>
+                                    <td>${rate}</td>
+                                    <td>
+                                        <input type="number" min="0" step="1" value="0" data-category-index="${index}" />
+                                    </td>
+                                </tr>
+                            `;
+                        }).join("")}
                     </tbody>
-                </table>
-                <div class="modal-actions">
-                    <button class="secondary" type="button" id="cancelModal">Cancel</button>
-                    <button class="primary" type="button" id="confirmModal">Add to Order</button>
-                </div>
-            `;
+                `;
+                modalBody.appendChild(table);
+                modalConfirm.textContent = "Add to Order";
+            } else if (config.mode === "express-toggle") {
+                modalTitle.textContent = "Express Service";
+                modalSubtitle.textContent = "Enable express handling to reduce turnaround time.";
+                const container = document.createElement("div");
+                container.innerHTML = `
+                    <p>Express Service adds <strong>25% of your subtotal</strong> as a rush fee.</p>
+                    <label style="display:flex; align-items:center; gap:12px; font-weight:600;">
+                        <input type="checkbox" id="modalExpressToggle" ${expressToggleEl.checked ? "checked" : ""} />
+                        Enable Express Service
+                    </label>
+                `;
+                modalBody.appendChild(container);
+                modalConfirm.textContent = "Update Add-on";
+            } else if (config.mode === "premium-toggle") {
+                const eligibleItems = getPremiumEligibleItems();
+                modalTitle.textContent = "Premium / Delicate Care";
+                modalSubtitle.textContent = "Add extra protection for delicate garments.";
+                const container = document.createElement("div");
+                container.innerHTML = `
+                    <p>Premium Care applies to item-based services and costs <strong>LKR 400 per item</strong>.</p>
+                    <p style="margin:0; color: var(--sf-muted);">Eligible items in this order: <strong>${eligibleItems}</strong></p>
+                    <label style="display:flex; align-items:center; gap:12px; font-weight:600; margin-top:8px;">
+                        <input type="checkbox" id="modalPremiumToggle" ${premiumToggleEl.checked ? "checked" : ""} />
+                        Enable Premium Care
+                    </label>
+                `;
+                modalBody.appendChild(container);
+                modalConfirm.textContent = "Update Add-on";
+            }
+        }
 
-            document.getElementById('cancelModal').addEventListener('click', hideModal);
-            document.getElementById('confirmModal').addEventListener('click', () => {
-                const selectedItems = [];
-                let total = 0;
+        function handleModalConfirm() {
+            if (!currentModalConfig) return;
 
-                categoryPricing.forEach(category => {
-                    const input = document.getElementById(`${service}-${category.key}`);
-                    const qty = parseInt(input.value, 10) || 0;
-                    if (qty > 0) {
-                        const price = isWashIron ? category.washIron : category.pressing;
-                        selectedItems.push({
-                            label: category.label,
+            if (currentModalConfig.mode === "weight") {
+                const input = document.getElementById("serviceWeight");
+                const weight = parseFloat(input.value);
+                if (Number.isNaN(weight) || weight <= 0) {
+                    modalError.textContent = "Please enter a valid weight.";
+                    return;
+                }
+                addWeightService(currentModalConfig.service, weight);
+                closeModal();
+            } else if (currentModalConfig.mode === "categories") {
+                const quantities = Array.from(modalBody.querySelectorAll("input[data-category-index]"));
+                const breakdown = [];
+                quantities.forEach((input) => {
+                    const qty = parseInt(input.value, 10);
+                    if (!Number.isNaN(qty) && qty > 0) {
+                        const index = Number(input.dataset.categoryIndex);
+                        const category = CATEGORY_RATES[index];
+                        const rate = category[currentModalConfig.service];
+                        breakdown.push({
+                            category: category.key,
                             quantity: qty,
-                            price: price
+                            rate,
+                            amount: rate * qty,
                         });
-                        total += price * qty;
                     }
                 });
 
-                if (selectedItems.length === 0) {
-                    alert('Please enter at least one item quantity.');
+                if (!breakdown.length) {
+                    modalError.textContent = "Add at least one item to continue.";
                     return;
                 }
-
-                const item = {
-                    id: Date.now(),
-                    type: service,
-                    name: heading,
-                    categories: selectedItems,
-                    total: total
-                };
-
-                addOrderItem(item);
-                hideModal();
-            });
-        }
-
-        function renderExpressModal() {
-            const checked = expressToggle.checked;
-            modalBody.innerHTML = `
-                <h3>Express Service</h3>
-                <p class="info-text">Express Service speeds up the turnaround time of your entire order for an additional 25% of the subtotal. Would you like to ${checked ? 'disable' : 'enable'} Express Service?</p>
-                <div class="modal-actions">
-                    <button class="secondary" type="button" id="cancelModal">Cancel</button>
-                    <button class="primary" type="button" id="confirmModal">${checked ? 'Disable' : 'Enable'} Express</button>
-                </div>
-            `;
-
-            document.getElementById('cancelModal').addEventListener('click', hideModal);
-            document.getElementById('confirmModal').addEventListener('click', () => {
-                expressToggle.checked = !checked;
-                updateTotals();
-                hideModal();
-            });
-        }
-
-        function renderPremiumModal() {
-            const checked = premiumToggle.checked;
-            modalBody.innerHTML = `
-                <h3>Premium / Delicate Care</h3>
-                <p class="info-text">Premium Care applies special handling at 400 LKR per item. Toggle the add-on and specify the number of premium items below.</p>
-                <label for="premiumModalCount">Number of premium items</label>
-                <input type="number" id="premiumModalCount" min="0" value="${premiumToggle.checked ? premiumCountInput.value : 0}">
-                <div class="modal-actions">
-                    <button class="secondary" type="button" id="cancelModal">Cancel</button>
-                    <button class="primary" type="button" id="confirmModal">${checked ? 'Update' : 'Enable'} Premium</button>
-                </div>
-            `;
-
-            document.getElementById('cancelModal').addEventListener('click', hideModal);
-            document.getElementById('confirmModal').addEventListener('click', () => {
-                const countValue = parseInt(document.getElementById('premiumModalCount').value, 10) || 0;
-                if (!checked && countValue <= 0) {
-                    alert('Please enter the number of premium items (greater than 0).');
-                    return;
-                }
-                if (countValue <= 0) {
-                    premiumToggle.checked = false;
-                    premiumCountInput.value = 0;
-                } else {
-                    premiumToggle.checked = true;
-                    premiumCountWrapper.classList.remove('hidden');
-                    premiumCountInput.value = countValue;
-                }
-                updateTotals();
-                hideModal();
-            });
-        }
-
-        function addOrderItem(item) {
-            orderItems.push(item);
-            renderOrderSummary();
-        }
-
-        function removeOrderItem(id) {
-            orderItems = orderItems.filter(item => item.id !== id);
-            renderOrderSummary();
-        }
-
-        function renderOrderSummary() {
-            summaryItems.innerHTML = '';
-
-            if (orderItems.length === 0) {
-                summaryItems.innerHTML = '<p class="info-text">No services selected yet.</p>';
-                updateTotals();
-                return;
+                addCategoryService(currentModalConfig.service, breakdown);
+                closeModal();
+            } else if (currentModalConfig.mode === "express-toggle") {
+                const modalToggle = document.getElementById("modalExpressToggle");
+                expressToggleEl.checked = modalToggle.checked;
+                updateSummary();
+                closeModal();
+            } else if (currentModalConfig.mode === "premium-toggle") {
+                const modalToggle = document.getElementById("modalPremiumToggle");
+                premiumToggleEl.checked = modalToggle.checked;
+                updateSummary();
+                closeModal();
             }
+        }
 
-            orderItems.forEach(item => {
-                const serviceDiv = document.createElement('div');
-                serviceDiv.className = 'summary-service';
-
-                const serviceLine = document.createElement('div');
-                serviceLine.className = 'service-line';
-                const labelText = item.quantityLabel ? `${item.name} (${item.quantityLabel})` : item.name;
-                serviceLine.innerHTML = `<span>${labelText}</span><span>${formatter.format(item.total)}</span>`;
-                serviceDiv.appendChild(serviceLine);
-
-                if (item.categories) {
-                    const list = document.createElement('ul');
-                    list.className = 'category-list';
-                    item.categories.forEach(category => {
-                        const li = document.createElement('li');
-                        li.textContent = `${category.label} (${category.quantity} item${category.quantity > 1 ? 's' : ''}) — ${formatter.format(category.price * category.quantity)}`;
-                        list.appendChild(li);
-                    });
-                    serviceDiv.appendChild(list);
-                }
-
-                const actions = document.createElement('div');
-                actions.className = 'service-actions';
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn';
-                removeBtn.type = 'button';
-                removeBtn.textContent = 'Remove';
-                removeBtn.addEventListener('click', () => removeOrderItem(item.id));
-                actions.appendChild(removeBtn);
-                serviceDiv.appendChild(actions);
-
-                summaryItems.appendChild(serviceDiv);
+        function addWeightService(serviceKey, weight) {
+            const id = crypto.randomUUID ? crypto.randomUUID() : `svc-${Date.now()}-${Math.random()}`;
+            const service = SERVICES[serviceKey];
+            const total = weight * service.rate;
+            orderEntries.push({
+                id,
+                type: serviceKey,
+                label: service.label,
+                quantity: weight,
+                unit: service.unit,
+                total,
+                breakdown: [],
+                itemCount: 0,
             });
-
-            updateTotals();
+            updateSummary();
         }
 
-        function calculateBaseTotal() {
-            return orderItems.reduce((sum, item) => sum + item.total, 0);
+        function addCategoryService(serviceKey, breakdown) {
+            const id = crypto.randomUUID ? crypto.randomUUID() : `svc-${Date.now()}-${Math.random()}`;
+            const service = SERVICES[serviceKey];
+            const total = breakdown.reduce((sum, item) => sum + item.amount, 0);
+            const itemCount = breakdown.reduce((sum, item) => sum + item.quantity, 0);
+            orderEntries.push({
+                id,
+                type: serviceKey,
+                label: service.label,
+                quantity: itemCount,
+                unit: service.unit,
+                total,
+                breakdown,
+                itemCount,
+            });
+            updateSummary();
         }
 
-        function updateTotals() {
-            const baseTotal = calculateBaseTotal();
-            subtotalAmount.textContent = formatter.format(baseTotal);
+        function removeService(id) {
+            orderEntries = orderEntries.filter((entry) => entry.id !== id);
+            updateSummary();
+        }
 
-            const expressSelected = expressToggle.checked;
-            const expressAmount = expressSelected ? Math.round(baseTotal * 0.25) : 0;
-            expressLine.classList.toggle('hidden', !expressSelected || expressAmount === 0);
-            expressAmountEl.textContent = formatter.format(expressAmount);
+        function getPremiumEligibleItems() {
+            return orderEntries.reduce((sum, entry) => sum + (entry.unit === "items" ? entry.itemCount : 0), 0);
+        }
 
-            const premiumSelected = premiumToggle.checked;
-            let premiumAmount = 0;
-            if (premiumSelected) {
-                premiumCountWrapper.classList.remove('hidden');
-                const premiumCount = parseInt(premiumCountInput.value, 10) || 0;
-                premiumAmount = premiumCount * 400;
-                if (premiumCount <= 0) {
-                    premiumAmountEl.textContent = 'LKR 0';
-                } else {
-                    premiumAmountEl.textContent = formatter.format(premiumAmount);
-                }
+        function updateSummary() {
+            summaryServicesEl.innerHTML = "";
+
+            if (!orderEntries.length) {
+                summaryServicesEl.innerHTML = '<div class="summary-empty">No services added yet.</div>';
             } else {
-                premiumCountWrapper.classList.add('hidden');
-                premiumCountInput.value = 0;
-                premiumAmountEl.textContent = formatter.format(0);
-            }
-            premiumLine.classList.toggle('hidden', !premiumSelected || premiumAmount === 0);
+                orderEntries.forEach((entry) => {
+                    const serviceEl = document.createElement("div");
+                    serviceEl.className = "summary-service";
 
-            const total = baseTotal + expressAmount + premiumAmount;
-            totalAmountEl.textContent = formatter.format(total);
+                    const header = document.createElement("div");
+                    header.className = "summary-service-header";
+                    const label = document.createElement("span");
+                    const qtyLabel = entry.unit === "kg" ? `${entry.quantity} kg` : `${entry.quantity} items`;
+                    label.textContent = entry.breakdown.length ? entry.label : `${entry.label} (${qtyLabel})`;
+
+                    const amount = document.createElement("span");
+                    amount.className = "summary-amount";
+                    amount.textContent = formatAmount(entry.total);
+
+                    const removeBtn = document.createElement("button");
+                    removeBtn.className = "remove-service";
+                    removeBtn.type = "button";
+                    removeBtn.textContent = "Remove";
+                    removeBtn.addEventListener("click", () => removeService(entry.id));
+
+                    header.appendChild(label);
+                    header.appendChild(amount);
+                    header.appendChild(removeBtn);
+                    serviceEl.appendChild(header);
+
+                    if (entry.breakdown.length) {
+                        const details = document.createElement("div");
+                        details.className = "summary-service-details";
+                        entry.breakdown.forEach((item) => {
+                            const row = document.createElement("span");
+                            row.innerHTML = `• ${item.category} (${item.quantity} item${item.quantity > 1 ? "s" : ""}) <span class="summary-amount">${formatAmount(item.amount)}</span>`;
+                            details.appendChild(row);
+                        });
+                        serviceEl.appendChild(details);
+                    }
+
+                    summaryServicesEl.appendChild(serviceEl);
+                });
+            }
+
+            const subtotal = orderEntries.reduce((sum, entry) => sum + entry.total, 0);
+            subtotalAmountEl.textContent = formatAmount(subtotal);
+
+            const expressAmount = expressToggleEl.checked ? subtotal * EXPRESS_PERCENT : 0;
+            if (expressAmount > 0) {
+                expressRowEl.style.display = "flex";
+                expressAmountEl.textContent = formatAmount(expressAmount);
+            } else {
+                expressRowEl.style.display = "none";
+            }
+
+            const premiumEligibleItems = getPremiumEligibleItems();
+            const premiumAmount = premiumToggleEl.checked ? premiumEligibleItems * PREMIUM_RATE : 0;
+            if (premiumAmount > 0) {
+                premiumRowEl.style.display = "flex";
+                premiumAmountEl.textContent = `${formatAmount(premiumAmount)} (${premiumEligibleItems} items)`;
+            } else {
+                premiumRowEl.style.display = "none";
+            }
+
+            const total = subtotal + expressAmount + premiumAmount;
+            totalAmountEl.textContent = formatAmount(total);
+            placeOrderBtn.disabled = total <= 0;
         }
 
-        expressToggle.addEventListener('change', () => {
-            updateTotals();
-        });
-
-        premiumToggle.addEventListener('change', () => {
-            if (!premiumToggle.checked) {
-                premiumCountInput.value = 0;
-            }
-            updateTotals();
-        });
-
-        premiumCountInput.addEventListener('input', () => {
-            if (premiumToggle.checked) {
-                updateTotals();
-            }
-        });
-
-        function validateDates() {
-            let isValid = true;
-            pickupError.textContent = '';
-            deliveryError.textContent = '';
-
+        function validateDates(showMessages = false) {
             const pickupValue = pickupInput.value;
             const deliveryValue = deliveryInput.value;
+            let isValid = true;
+            const now = new Date();
 
             if (!pickupValue) {
-                pickupError.textContent = 'Pickup date & time is required.';
+                if (showMessages) pickupError.textContent = "Pickup date & time is required.";
                 isValid = false;
+            } else {
+                const pickupDate = new Date(pickupValue);
+                if (pickupDate < now) {
+                    if (showMessages) pickupError.textContent = "Pickup cannot be in the past.";
+                    isValid = false;
+                } else if (showMessages) {
+                    pickupError.textContent = "";
+                }
             }
 
             if (!deliveryValue) {
-                deliveryError.textContent = 'Delivery date & time is required.';
+                if (showMessages) deliveryError.textContent = "Delivery date & time is required.";
                 isValid = false;
-            }
-
-            if (!isValid) {
-                return false;
-            }
-
-            const now = new Date();
-            now.setSeconds(0, 0);
-            const pickupDate = new Date(pickupValue);
-            const deliveryDate = new Date(deliveryValue);
-
-            if (pickupDate < now) {
-                pickupError.textContent = 'Pickup date & time cannot be in the past.';
-                isValid = false;
-            }
-
-            if (deliveryDate <= pickupDate) {
-                deliveryError.textContent = 'Delivery date must be after the pickup date.';
-                isValid = false;
+            } else if (pickupValue) {
+                const pickupDate = new Date(pickupValue);
+                const deliveryDate = new Date(deliveryValue);
+                if (deliveryDate <= pickupDate) {
+                    if (showMessages) deliveryError.textContent = "Delivery must be after pickup.";
+                    isValid = false;
+                } else if (showMessages) {
+                    deliveryError.textContent = "";
+                }
+            } else if (showMessages) {
+                deliveryError.textContent = "";
             }
 
             return isValid;
         }
 
-        const localISOString = date => {
-            const tzOffset = date.getTimezoneOffset() * 60000;
-            const localTime = new Date(date.getTime() - tzOffset);
-            return localTime.toISOString().slice(0, 16);
-        };
+        document.querySelectorAll(".service-card button").forEach((button) => {
+            button.addEventListener("click", () => {
+                const service = button.dataset.service;
+                if (service === "laundry" || service === "dryCleaning") {
+                    openModal({ mode: "weight", service });
+                } else if (service === "pressing" || service === "washIron") {
+                    openModal({ mode: "categories", service });
+                } else if (service === "express") {
+                    openModal({ mode: "express-toggle" });
+                } else if (service === "premium") {
+                    openModal({ mode: "premium-toggle" });
+                }
+            });
+        });
 
-        const initializeDateFields = () => {
-            const minValue = localISOString(new Date());
-            pickupInput.min = minValue;
-            if (!pickupInput.value) {
-                pickupInput.value = '';
-            }
-            deliveryInput.min = pickupInput.value || minValue;
-        };
+        expressToggleEl.addEventListener("change", updateSummary);
+        premiumToggleEl.addEventListener("change", updateSummary);
 
-        pickupInput.addEventListener('change', () => {
-            validateDates();
-            if (pickupInput.value) {
-                deliveryInput.min = pickupInput.value;
-            } else {
-                deliveryInput.min = localISOString(new Date());
+        modalConfirm.addEventListener("click", handleModalConfirm);
+        modalCancel.addEventListener("click", closeModal);
+        modalClose.addEventListener("click", closeModal);
+        modalBackdrop.addEventListener("click", (event) => {
+            if (event.target === modalBackdrop) {
+                closeModal();
             }
         });
 
-        deliveryInput.addEventListener('change', validateDates);
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && modalBackdrop.classList.contains("open")) {
+                closeModal();
+            }
+        });
 
-        placeOrderBtn.addEventListener('click', () => {
-            const totalsValid = calculateBaseTotal() > 0;
-            const datesValid = validateDates();
+        pickupInput.addEventListener("input", () => validateDates(true));
+        deliveryInput.addEventListener("input", () => validateDates(true));
 
-            if (!totalsValid) {
-                alert('Please add at least one service before placing the order.');
+        placeOrderBtn.addEventListener("click", () => {
+            const datesValid = validateDates(true);
+            const totalText = totalAmountEl.textContent;
+            const hasServices = orderEntries.length > 0 && totalText !== "LKR 0";
+
+            if (!hasServices) {
+                alert("Add at least one service to place an order.");
                 return;
             }
 
             if (!datesValid) {
-                alert('Please correct the highlighted date errors before placing the order.');
                 return;
             }
 
-            const totalText = totalAmountEl.textContent;
-            alert(`Order placed successfully!\nTotal Due: ${totalText}`);
+            alert("Order placed successfully!");
         });
 
-        initializeDateFields();
-        updateTotals();
+        setInitialMinDates();
+        updateSummary();
     </script>
 </body>
 </html>
