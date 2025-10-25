@@ -12,6 +12,7 @@ const user = requireAuth("USER");
 /* --- DOM hooks --- */
 const logoutBtn = document.getElementById("logout-user");
 const placeOrderMount = document.getElementById("placeOrderMount");
+const collapsibleToggles = document.querySelectorAll(".card-toggle");
 
 /* KPIs */
 const kpiActive = document.getElementById("kpiActive");
@@ -39,6 +40,7 @@ let ordersAll = [];
 let filtered = [];
 let page = 1;
 const pageSize = 5;
+let openRowMenu = null;
 
 /* --- Logout --- */
 logoutBtn?.addEventListener("click", (e) => {
@@ -46,6 +48,37 @@ logoutBtn?.addEventListener("click", (e) => {
     clearCurrentUser();
     window.location.href = "/frontend/login.html";
 });
+
+/* --- Collapsible cards --- */
+function syncCollapsibleState() {
+    const isDesktop = window.matchMedia("(min-width: 640px)").matches;
+    collapsibleToggles.forEach((btn) => {
+        const card = btn.closest(".card-collapsible");
+        if (!card) return;
+        if (isDesktop) {
+            card.classList.add("is-open");
+            btn.setAttribute("aria-expanded", "true");
+        } else {
+            btn.setAttribute(
+                "aria-expanded",
+                card.classList.contains("is-open") ? "true" : "false"
+            );
+        }
+    });
+}
+
+collapsibleToggles.forEach((btn) => {
+    const card = btn.closest(".card-collapsible");
+    if (!card) return;
+    btn.addEventListener("click", () => {
+        if (window.matchMedia("(min-width: 640px)").matches) return;
+        const isOpen = card.classList.toggle("is-open");
+        btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+});
+
+window.addEventListener("resize", syncCollapsibleState);
+syncCollapsibleState();
 
 /* =========================
    Place Order – embed hero
@@ -129,7 +162,7 @@ function applyFilters() {
     const st = orderStatus?.value || "ALL";
 
     filtered = ordersAll.filter((o) => {
-        const matchesQ = !q || `${o.id} ${o.serviceType} ${o.quantity}`.toLowerCase().includes(q);
+        const matchesQ = !q || `${o.id} ${o.serviceType} ${o.status}`.toLowerCase().includes(q);
         const matchesS = st === "ALL" || o.status === st;
         return matchesQ && matchesS;
     });
@@ -145,8 +178,10 @@ function applyFilters() {
 
 function renderOrders() {
     if (!ordersBody) return;
+    closeOpenMenu();
     if (filtered.length === 0) {
-        ordersBody.innerHTML = `<tr><td colspan="7" class="muted">No orders found.</td></tr>`;
+        ordersBody.innerHTML = `<tr><td colspan="8" class="muted">No orders found.</td></tr>`;
+        pageInfo.textContent = "Showing 0–0 of 0";
         return;
     }
 
@@ -163,6 +198,14 @@ function renderOrders() {
       <td>${renderStatusBadge(o.status)}</td>
       <td>${o.pickupDate || "-"}</td>
       <td>${o.deliveryDate || "-"}</td>
+      <td class="order-actions">
+        <button class="row-menu" type="button" aria-haspopup="true" aria-expanded="false" data-order-id="${o.id}" aria-label="Open actions for order #${o.id}">⋮</button>
+        <div class="menu-popover" data-order-id="${o.id}" hidden role="menu">
+          <button type="button" class="row-action" data-action="view" data-order-id="${o.id}" role="menuitem">View</button>
+          <button type="button" class="row-action" data-action="repeat" data-order-id="${o.id}" role="menuitem">Repeat</button>
+          <button type="button" class="row-action" data-action="cancel" data-order-id="${o.id}" role="menuitem">Cancel</button>
+        </div>
+      </td>
     </tr>
   `).join("");
 
@@ -183,20 +226,86 @@ nextPageBtn?.addEventListener("click", () => {
 orderSearch?.addEventListener("input", () => { page = 1; applyFilters(); });
 orderStatus?.addEventListener("change", () => { page = 1; applyFilters(); });
 
+ordersBody?.addEventListener("click", (e) => {
+    const menuBtn = e.target.closest(".row-menu");
+    if (menuBtn) {
+        e.stopPropagation();
+        const parent = menuBtn.parentElement;
+        const menu = parent?.querySelector(".menu-popover");
+        if (!menu) return;
+        const isOpen = openRowMenu && openRowMenu.menu === menu;
+        closeOpenMenu();
+        if (!isOpen) {
+            menu.hidden = false;
+            menuBtn.setAttribute("aria-expanded", "true");
+            openRowMenu = { menu, button: menuBtn };
+        }
+        return;
+    }
+
+    const actionBtn = e.target.closest(".row-action");
+    if (actionBtn) {
+        e.stopPropagation();
+        const { action, orderId } = actionBtn.dataset;
+        const order = ordersAll.find((o) => `${o.id}` === `${orderId}`);
+        if (order && action) {
+            handleRowAction(action, order);
+        }
+        closeOpenMenu();
+    }
+});
+
+document.addEventListener("click", (e) => {
+    if (!openRowMenu) return;
+    if (e.target.closest(".menu-popover") || e.target.closest(".row-menu")) return;
+    closeOpenMenu();
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        closeOpenMenu();
+    }
+});
+
+function closeOpenMenu() {
+    if (!openRowMenu) return;
+    openRowMenu.menu.hidden = true;
+    openRowMenu.button?.setAttribute("aria-expanded", "false");
+    openRowMenu = null;
+}
+
+function handleRowAction(action, order) {
+    switch (action) {
+        case "view":
+            toastSuccess(`Viewing order #${order.id}`);
+            break;
+        case "repeat":
+            window.dispatchEvent(new CustomEvent("place-order:repeat", { detail: { order } }));
+            toastSuccess(`Order #${order.id} added to Place Order.`);
+            break;
+        case "cancel":
+            toastSuccess(`Cancellation request sent for order #${order.id}.`);
+            break;
+        default:
+            break;
+    }
+}
+
 function computeKPIs() {
-    const activeStatuses = new Set(["PENDING","IN_PROGRESS","READY"]);
-    const activeCount = ordersAll.filter(o => activeStatuses.has(o.status)).length;
+    const inactive = new Set(["DELIVERED","CANCELLED"]);
+    const activeCount = ordersAll.filter(o => !inactive.has(o.status)).length;
 
-    const spent = ordersAll
-        .filter(o => ["DELIVERED","COMPLETED","READY","IN_PROGRESS","PENDING"].includes(o.status))
-        .reduce((sum,o)=> sum + (Number(o.price)||0), 0);
+    const spent = ordersAll.reduce((sum,o)=> sum + (Number(o.price)||0), 0);
 
-    const pickups = ordersAll.map(o => new Date(o.pickupDate)).filter(d => !isNaN(d.getTime()));
-    const lastPickup = pickups.length ? pickups.sort((a,b)=>b-a)[0] : null;
+    const pickups = ordersAll
+        .map(o => new Date(o.pickupDate))
+        .filter(d => !Number.isNaN(d.getTime()))
+        .sort((a,b)=>b-a);
+    const lastPickup = pickups.length ? pickups[0] : null;
 
     kpiActive.textContent = `${activeCount}`;
-    kpiSpent.textContent  = Number(spent).toLocaleString();
-    kpiPickup.textContent = lastPickup ? lastPickup.toLocaleDateString() : "—";
+    kpiSpent.textContent  = Number(spent).toLocaleString(undefined,{maximumFractionDigits:0});
+    kpiPickup.textContent = lastPickup ? lastPickup.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}) : "—";
 }
 
 /* =================
@@ -241,10 +350,19 @@ function renderMessages(list) {
     }
     messageList.innerHTML = list.map(m => {
         const mine = m.fromUserId === user.id;
+        const initials = (mine ? user?.name : adminUser?.name || "Support")
+            ?.split(" ")
+            .map(part => part[0])
+            .join("")
+            .slice(0,2)
+            .toUpperCase() || "SF";
         return `
-      <div class="message-bubble ${mine ? "sent" : "received"}">
-        <div>${m.body}</div>
-        <div class="message-meta">${new Date(m.timestamp).toLocaleString()}</div>
+      <div class="message-row ${mine ? "mine" : "support"}">
+        <span class="message-avatar" aria-hidden="true">${initials}</span>
+        <div class="message-bubble ${mine ? "sent" : "received"}">
+          <div>${m.body}</div>
+          <div class="message-meta">${new Date(m.timestamp).toLocaleString()}</div>
+        </div>
       </div>
     `;
     }).join("");
