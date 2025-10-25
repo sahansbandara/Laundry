@@ -886,6 +886,7 @@
             }
 
             const now = new Date();
+            now.setSeconds(0, 0);
             const pickupDate = new Date(pickupValue);
             const deliveryDate = new Date(deliveryValue);
 
@@ -902,7 +903,30 @@
             return isValid;
         }
 
-        pickupInput.addEventListener('change', validateDates);
+        const localISOString = date => {
+            const tzOffset = date.getTimezoneOffset() * 60000;
+            const localTime = new Date(date.getTime() - tzOffset);
+            return localTime.toISOString().slice(0, 16);
+        };
+
+        const initializeDateFields = () => {
+            const minValue = localISOString(new Date());
+            pickupInput.min = minValue;
+            if (!pickupInput.value) {
+                pickupInput.value = '';
+            }
+            deliveryInput.min = pickupInput.value || minValue;
+        };
+
+        pickupInput.addEventListener('change', () => {
+            validateDates();
+            if (pickupInput.value) {
+                deliveryInput.min = pickupInput.value;
+            } else {
+                deliveryInput.min = localISOString(new Date());
+            }
+        });
+
         deliveryInput.addEventListener('change', validateDates);
 
         placeOrderBtn.addEventListener('click', () => {
@@ -922,6 +946,9 @@
             const totalText = totalAmountEl.textContent;
             alert(`Order placed successfully!\nTotal Due: ${totalText}`);
         });
+
+        initializeDateFields();
+        updateTotals();
     </script>
 </body>
 </html>
