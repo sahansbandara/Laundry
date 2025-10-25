@@ -20,7 +20,7 @@ const logoutBtn = document.getElementById("logout-btn");
 logoutBtn?.addEventListener("click", (event) => {
   event.preventDefault();
   clearCurrentUser();
-  window.location.href = "login.html";
+  window.location.href = "/frontend/login.html";
 });
 
 const sections = document.querySelectorAll("main section");
