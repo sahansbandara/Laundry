@@ -2,59 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SmartFold — Customer Portal</title>
-    <link rel="stylesheet" href="./style.css"/>
+    <link rel="stylesheet" href="./style.css" />
 </head>
 <body class="dashboard user-dashboard">
-
-<!-- Sticky Top Bar -->
-<header class="navbar">
-    <div class="navbar-group">
-        <h1 class="brand-heading">SmartFold</h1>
-        <nav class="nav-chip-group">
-            <a href="#place-order-hero" class="chip-link">Place Order</a>
-            <a href="#orders" class="chip-link">My Orders</a>
-            <a href="#support" class="chip-link">Contact Support</a>
+<header class="navbar app-bar">
+    <div class="container-xl app-bar-inner">
+        <div class="app-brand">
+            <h1 class="brand-heading">SmartFold</h1>
+        </div>
+        <nav class="segmented-tabs" aria-label="Customer quick navigation">
+            <a href="#place-order-hero" class="tab-chip active">Place Order</a>
+            <a href="#orders" class="tab-chip">My Orders</a>
+            <a href="#support" class="tab-chip">Contact Support</a>
         </nav>
+        <div class="app-actions">
+            <button id="logout-user" class="pill-ghost pill-logout">Logout</button>
+        </div>
     </div>
-    <button id="logout-user" class="btn-danger">Logout</button>
 </header>
 
 <main class="dashboard-main">
-    <div class="page-container">
-        <div class="dashboard-stack">
-            <!-- HERO: embedded place-order.html -->
-            <section id="place-order-hero" class="card">
-                <section id="placeOrderMount" aria-label="Place New Laundry Order"></section>
-            </section>
+    <div class="container-xl content-area">
+        <section id="place-order-hero" class="hero-shell">
+            <div id="placeOrderMount" class="place-order-embed" aria-label="Place New Laundry Order"></div>
+        </section>
 
-            <!-- KPI Row -->
-            <section id="kpiRow" class="kpi-row">
-                <div class="kpi-card" role="status" aria-live="polite">
-                    <div class="kpi-label">Active Orders</div>
-                    <div class="kpi-value" id="kpiActive">0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Total Spent (LKR)</div>
-                    <div class="kpi-value" id="kpiSpent">0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Last Pickup</div>
-                    <div class="kpi-value" id="kpiPickup">—</div>
-                </div>
-            </section>
+        <section id="kpiRow" class="kpi-row">
+            <article class="kpi-card" role="status" aria-live="polite">
+                <span class="kpi-label">Active Orders</span>
+                <span class="kpi-value" id="kpiActive">0</span>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Total Spent (LKR)</span>
+                <span class="kpi-value" id="kpiSpent">0</span>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Last Pickup</span>
+                <span class="kpi-value" id="kpiPickup">—</span>
+            </article>
+        </section>
 
-            <!-- Orders Table -->
-            <section class="card card-collapsible is-open" id="orders">
-                <div class="card-header">
-                    <button class="card-toggle" type="button" aria-expanded="true">
-                        <span class="card-title">My Orders</span>
-                        <span class="caret">⌄</span>
-                    </button>
-                    <div class="card-controls orders-controls">
-                        <input id="orderSearch" type="search" placeholder="Search orders…"/>
-                        <select id="orderStatus">
+        <section id="orders" class="section-block card-soft">
+            <div class="section-header">
+                <h2 class="section-title">My Orders</h2>
+                <div class="section-controls">
+                    <div class="field compact">
+                        <label class="sr-only" for="orderSearch">Search orders</label>
+                        <input id="orderSearch" type="search" class="input-lg" placeholder="Search orders…" />
+                    </div>
+                    <div class="field compact">
+                        <label class="sr-only" for="orderStatus">Filter by status</label>
+                        <select id="orderStatus" class="select-lg">
                             <option value="ALL">All statuses</option>
                             <option value="PENDING">Pending</option>
                             <option value="IN_PROGRESS">In progress</option>
@@ -64,53 +64,50 @@
                         </select>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-wrapper">
-                        <table aria-label="Orders table">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Service</th>
-                                <th>Qty</th>
-                                <th>Price (LKR)</th>
-                                <th>Status</th>
-                                <th>Pickup</th>
-                                <th>Delivery</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody id="user-orders-body"></tbody>
-                        </table>
-                    </div>
-                    <div class="pagination">
-                        <span class="muted small-text" id="pageInfo">Showing 0–0 of 0</span>
-                        <div class="pager">
-                            <button id="prevPage" class="btn-primary btn-pill" disabled>Prev</button>
-                            <button id="nextPage" class="btn-primary btn-pill" disabled>Next</button>
-                        </div>
+            </div>
+            <div class="section-body">
+                <div class="table-wrapper table-compact">
+                    <table aria-label="Orders table">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Service</th>
+                            <th scope="col">Qty</th>
+                            <th scope="col">Price (LKR)</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Pickup</th>
+                            <th scope="col">Delivery</th>
+                            <th scope="col" class="row-actions">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="user-orders-body"></tbody>
+                    </table>
+                </div>
+                <div class="section-footer">
+                    <span class="muted small-text" id="pageInfo">Showing 0–0 of 0</span>
+                    <div class="pager">
+                        <button id="prevPage" class="btn-primary btn-pill" disabled>Prev</button>
+                        <button id="nextPage" class="btn-primary btn-pill" disabled>Next</button>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Contact Support -->
-            <section id="support" class="card card-collapsible is-open">
-                <div class="card-header">
-                    <button class="card-toggle" type="button" aria-expanded="true">
-                        <span class="card-title">Contact Support</span>
-                        <span class="caret">⌄</span>
-                    </button>
+        <section id="support" class="section-block card-soft">
+            <div class="section-header">
+                <h2 class="section-title">Contact Support</h2>
+            </div>
+            <div class="section-body">
+                <div class="thread" aria-live="polite">
+                    <div class="thread-scroll" id="user-message-list"></div>
+                    <form id="user-message-form" class="thread-input" aria-label="Contact Support form">
+                        <label class="sr-only" for="user-message-input">Message to Support</label>
+                        <input type="text" id="user-message-input" placeholder="Type your message to Support…" required />
+                        <button type="submit" class="btn-primary">Send</button>
+                    </form>
                 </div>
-                <div class="card-body">
-                    <div class="message-thread">
-                        <div class="message-list" id="user-message-list" aria-live="polite"></div>
-                        <form id="user-message-form" class="message-form" aria-label="Contact Support form">
-                            <input type="text" id="user-message-input" placeholder="Type your message to Support…" aria-label="Message to Support" required/>
-                            <button type="submit" class="btn-primary">Send</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </div>
 </main>
 

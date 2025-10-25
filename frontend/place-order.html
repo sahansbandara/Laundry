@@ -4,556 +4,109 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Place New Laundry Order</title>
-    <style>
-        :root {
-            --bg: #f3f6fb;
-            --card-bg: #ffffff;
-            --border-radius: 12px;
-            --shadow: 0 12px 30px rgba(15, 35, 95, 0.08);
-            --primary-gradient: linear-gradient(135deg, #3b82f6, #2563eb);
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --danger: #dc2626;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            padding: 2.5rem 1.5rem 1rem;
-            text-align: center;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: clamp(1.8rem, 2.5vw + 1rem, 2.6rem);
-            font-weight: 600;
-            color: #1e3a8a;
-        }
-
-        main {
-            flex: 1;
-            padding: 0 1.5rem 3rem;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        @media (min-width: 1024px) {
-            main {
-                grid-template-columns: minmax(0, 1fr) 420px;
-                align-items: start;
-            }
-        }
-
-        .service-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .service-menu h2 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .service-grid {
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        }
-
-        .service-card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 1.25rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);
-        }
-
-        .service-card h3 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1e40af;
-        }
-
-        .service-card p {
-            margin: 0;
-            color: var(--muted);
-            line-height: 1.4;
-            font-size: 0.95rem;
-        }
-
-        .price {
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .primary-btn {
-            border: none;
-            border-radius: 999px;
-            padding: 0.6rem 1rem;
-            color: #fff;
-            background-image: var(--primary-gradient);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
-        }
-
-        .primary-btn:focus {
-            outline: 3px solid rgba(37, 99, 235, 0.35);
-            outline-offset: 2px;
-        }
-
-        .summary-panel {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .summary-actions {
-            display: flex;
-            align-items: center;
-        }
-
-        .summary-repeat-btn {
-            width: 100%;
-            justify-content: center;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.9rem;
-        }
-
-
-        @media (min-width: 1024px) {
-            .summary-panel {
-                position: sticky;
-                top: 1rem;
-                max-height: calc(100vh - 2rem);
-                overflow: hidden;
-            }
-        }
-
-        .summary-panel h2 {
-            margin: 0;
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        label {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        input[type="datetime-local"],
-        input[type="number"],
-        input[type="text"] {
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            padding: 0.6rem 0.75rem;
-            font-size: 0.95rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        input[type="datetime-local"]:focus,
-        input[type="number"]:focus,
-        input[type="text"]:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-            outline: none;
-        }
-
-        .error-message {
-            font-size: 0.8rem;
-            color: var(--danger);
-            min-height: 1em;
-        }
-
-        .summary-list-wrapper {
-            flex: 1;
-            min-height: 200px;
-            border: 1px dashed #e5e7eb;
-            border-radius: 10px;
-            padding: 1rem;
-            background: #f9fafb;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .summary-empty {
-            color: var(--muted);
-            text-align: center;
-            margin: auto;
-            font-size: 0.95rem;
-        }
-
-        #summaryList {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            max-height: 240px;
-            overflow-y: auto;
-            padding-right: 0.5rem;
-        }
-
-        .summary-item {
-            background: #fff;
-            border-radius: 10px;
-            padding: 0.8rem 0.9rem;
-            box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .summary-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-        }
-
-        .summary-amount {
-            font-weight: 700;
-            color: #1e3a8a;
-        }
-
-        .remove-btn,
-        .edit-btn {
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 0.95rem;
-            padding: 0.1rem 0.3rem;
-            border-radius: 6px;
-            transition: color 0.2s ease, background 0.2s ease;
-        }
-
-        .remove-btn:hover,
-        .edit-btn:hover {
-            color: var(--danger);
-            background: rgba(220, 38, 38, 0.08);
-        }
-
-        .summary-details {
-            padding-left: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-            font-size: 0.9rem;
-            color: var(--muted);
-        }
-
-        .summary-detail-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.75rem;
-        }
-
-        .summary-divider {
-            border: none;
-            border-top: 1px dashed #d1d5db;
-            margin: 0.5rem 0;
-        }
-
-        .totals {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-            font-size: 0.95rem;
-        }
-
-        .totals .label {
-            color: var(--muted);
-        }
-
-        .totals .value {
-            font-weight: 700;
-            color: #1e3a8a;
-        }
-
-        .total-line {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .add-on-row {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 0.95rem;
-        }
-
-        .add-on-row input[type="checkbox"] {
-            width: 1.1rem;
-            height: 1.1rem;
-            accent-color: var(--primary);
-        }
-
-        .place-order-btn {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            font-size: 1.05rem;
-            border-radius: 12px;
-        }
-
-        .place-order-btn:disabled {
-            background: #cbd5f5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 25px 60px rgba(15, 35, 95, 0.2);
-            max-width: 520px;
-            width: 100%;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            position: relative;
-        }
-
-        .modal-content h3 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .modal-body {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-        }
-
-        .secondary-btn {
-            border: 1px solid #cbd5f5;
-            border-radius: 999px;
-            padding: 0.55rem 1.2rem;
-            background: #eff6ff;
-            color: #1e3a8a;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease, border-color 0.2s ease;
-        }
-
-        .secondary-btn:hover {
-            background: #dbeafe;
-            border-color: #bfdbfe;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 0.6rem 0.4rem;
-            text-align: left;
-            font-size: 0.95rem;
-        }
-
-        thead th {
-            position: sticky;
-            top: 0;
-            background: #f3f4f6;
-            z-index: 1;
-        }
-
-        tbody tr:nth-child(even) {
-            background: #f9fafb;
-        }
-
-        .pill {
-            background: rgba(37, 99, 235, 0.1);
-            color: #1e40af;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        .confirmation-summary {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .confirmation-summary ul {
-            margin: 0;
-            padding-left: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
-<header>
-    <h1>Place New Laundry Order</h1>
+<body class="place-order-page">
+<header class="place-order-header">
+    <div class="container-xl">
+        <h1>Place New Laundry Order</h1>
+        <p class="muted">Select services and schedule pickup in just a few steps.</p>
+    </div>
 </header>
-<main>
-    <section class="service-menu">
-        <h2>Service Menu</h2>
-        <div class="service-grid">
-            <article class="service-card">
-                <h3>Laundry (Wash Only)</h3>
-                <p>Freshly laundered garments charged by total weight.</p>
-                <div class="price">250 LKR / kg</div>
-                <button class="primary-btn" data-service="laundry" aria-label="Select Laundry Wash Only">Select</button>
-            </article>
-            <article class="service-card">
-                <h3>Pressing (Iron Only)</h3>
-                <p>Perfect crease and finish for garments, priced per item category.</p>
-                <div class="price">Per item (category-based)</div>
-                <button class="primary-btn" data-service="pressing" aria-label="Select Pressing Iron Only">Select</button>
-            </article>
-            <article class="service-card">
-                <h3>Wash &amp; Iron</h3>
-                <p>Complete cleaning and pressing service for each garment type.</p>
-                <div class="price">Per item (Pressing + 25 LKR)</div>
-                <button class="primary-btn" data-service="washiron" aria-label="Select Wash and Iron">Select</button>
-            </article>
-            <article class="service-card">
-                <h3>Dry Cleaning</h3>
-                <p>Delicate solvent-based cleaning for special fabrics.</p>
-                <div class="price">400 LKR / kg</div>
-                <button class="primary-btn" data-service="dry" aria-label="Select Dry Cleaning">Select</button>
-            </article>
-            <article class="service-card">
-                <h3>Express Service</h3>
-                <p>Prioritized turnaround for your entire order.</p>
-                <div class="price">+25% of selected services</div>
-                <button class="primary-btn" data-service="express" aria-label="Toggle Express Add-on">Select</button>
-            </article>
-            <article class="service-card">
-                <h3>Premium / Delicate Care</h3>
-                <p>Hand-finished care for delicate and designer pieces.</p>
-                <div class="price">400 LKR / item</div>
-                <button class="primary-btn" data-service="premium" aria-label="Select Premium Delicate Care">Select</button>
-            </article>
-        </div>
-    </section>
-
-    <aside class="summary-panel" aria-label="Current Order Summary">
-        <h2>Current Order Summary</h2>
-        <div class="summary-actions">
-            <button type="button" id="repeatLastOrderBtn" class="secondary-btn summary-repeat-btn">Repeat Last Order</button>
-        </div>
-        <div class="field-group">
-            <label for="pickupDateTime">Pickup Date &amp; Time</label>
-            <input type="datetime-local" id="pickupDateTime" />
-            <span class="error-message" id="pickupError"></span>
-        </div>
-        <div class="field-group">
-            <label for="deliveryDateTime">Delivery Date &amp; Time</label>
-            <input type="datetime-local" id="deliveryDateTime" />
-            <span class="error-message" id="deliveryError"></span>
-        </div>
-
-        <div class="summary-list-wrapper">
-            <div id="summaryList" aria-live="polite"></div>
-        </div>
-
-        <div class="add-on-row">
-            <input type="checkbox" id="expressToggle" />
-            <label for="expressToggle">Express Add-on (+25%)</label>
-        </div>
-        <div class="add-on-row">
-            <input type="checkbox" id="premiumToggle" />
-            <label for="premiumToggle">Premium Care (+LKR 400/item)</label>
-        </div>
-
-        <div class="totals">
-            <div class="total-line">
-                <span class="label">Services Subtotal</span>
-                <span class="value" id="subtotalValue">LKR 0</span>
+<main class="place-order-main">
+    <div class="container-xl place-order-grid">
+        <section class="service-menu card-soft">
+            <header class="subhead">
+                <h2>Service Menu</h2>
+                <p class="muted small-text">Choose one or more services to build your order.</p>
+            </header>
+            <div class="service-grid">
+                <article class="service-card">
+                    <h3>Laundry (Wash Only)</h3>
+                    <p>Freshly laundered garments charged by total weight.</p>
+                    <div class="price">250 LKR / kg</div>
+                    <button class="primary-btn btn-primary service-select" data-service="laundry" aria-label="Select Laundry Wash Only">Select</button>
+                </article>
+                <article class="service-card">
+                    <h3>Pressing (Iron Only)</h3>
+                    <p>Perfect crease and finish for garments, priced per item category.</p>
+                    <div class="price">Per item (category-based)</div>
+                    <button class="primary-btn btn-primary service-select" data-service="pressing" aria-label="Select Pressing Iron Only">Select</button>
+                </article>
+                <article class="service-card">
+                    <h3>Wash &amp; Iron</h3>
+                    <p>Complete cleaning and pressing service for each garment type.</p>
+                    <div class="price">Per item (Pressing + 25 LKR)</div>
+                    <button class="primary-btn btn-primary service-select" data-service="washiron" aria-label="Select Wash and Iron">Select</button>
+                </article>
+                <article class="service-card">
+                    <h3>Dry Cleaning</h3>
+                    <p>Delicate solvent-based cleaning for special fabrics.</p>
+                    <div class="price">400 LKR / kg</div>
+                    <button class="primary-btn btn-primary service-select" data-service="dry" aria-label="Select Dry Cleaning">Select</button>
+                </article>
+                <article class="service-card">
+                    <h3>Express Service</h3>
+                    <p>Prioritized turnaround for your entire order.</p>
+                    <div class="price">+25% of selected services</div>
+                    <button class="primary-btn btn-primary service-select" data-service="express" aria-label="Toggle Express Add-on">Select</button>
+                </article>
+                <article class="service-card">
+                    <h3>Premium / Delicate Care</h3>
+                    <p>Hand-finished care for delicate and designer pieces.</p>
+                    <div class="price">400 LKR / item</div>
+                    <button class="primary-btn btn-primary service-select" data-service="premium" aria-label="Select Premium Delicate Care">Select</button>
+                </article>
             </div>
-            <div class="total-line total-amount">
-                <span class="label">TOTAL</span>
-                <span class="value" id="totalValue">LKR 0</span>
-            </div>
-        </div>
+        </section>
 
-        <button id="placeOrderBtn" class="primary-btn place-order-btn" disabled>Place Order</button>
-    </aside>
+        <aside class="summary-panel card-soft" aria-label="Current Order Summary">
+            <header class="summary-header">
+                <div>
+                    <h2>Current Order Summary</h2>
+                    <p class="muted small-text">Track totals and schedule pickup</p>
+                </div>
+                <button type="button" id="repeatLastOrderBtn" class="pill-ghost repeat-pill">Repeat Last Order</button>
+            </header>
+
+            <div class="field-group">
+                <label for="pickupDateTime">Pickup Date &amp; Time</label>
+                <input type="datetime-local" id="pickupDateTime" />
+                <span class="error-message" id="pickupError"></span>
+            </div>
+            <div class="field-group">
+                <label for="deliveryDateTime">Delivery Date &amp; Time</label>
+                <input type="datetime-local" id="deliveryDateTime" />
+                <span class="error-message" id="deliveryError"></span>
+            </div>
+
+            <div class="summary-list-wrapper">
+                <div id="summaryList" aria-live="polite"></div>
+            </div>
+
+            <label class="addon-toggle" for="expressToggle">
+                <input type="checkbox" id="expressToggle" />
+                <span>Express Add-on (+25%)</span>
+            </label>
+            <label class="addon-toggle" for="premiumToggle">
+                <input type="checkbox" id="premiumToggle" />
+                <span>Premium Care (+LKR 400/item)</span>
+            </label>
+
+            <div class="totals">
+                <div class="total-line">
+                    <span class="label">Services Subtotal</span>
+                    <span class="value" id="subtotalValue">LKR 0</span>
+                </div>
+                <div class="total-line total-amount">
+                    <span class="label">TOTAL</span>
+                    <span class="value" id="totalValue">LKR 0</span>
+                </div>
+            </div>
+
+            <button id="placeOrderBtn" class="primary-btn btn-primary place-order-btn" disabled>Place Order</button>
+        </aside>
+    </div>
 </main>
 
 <div id="modalRoot" aria-live="assertive"></div>
