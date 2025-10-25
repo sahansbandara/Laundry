@@ -35,7 +35,7 @@ async function mountPlaceOrderUI() {
     placeOrderMount.appendChild(loading);
 
     try {
-        const response = await fetch("/frontend/place-order.html", { cache: "no-store" });
+        const response = await fetch("./place-order.html", { cache: "no-store" });
         if (!response.ok) {
             throw new Error("Unable to fetch place-order.html");
         }
