@@ -2,7 +2,6 @@ package com.laundry.lms.controller;
 
 import com.laundry.lms.dto.OrderCreateResponse;
 import com.laundry.lms.model.LaundryOrder;
-import com.laundry.lms.model.OrderStatus;
 import com.laundry.lms.repository.LaundryOrderRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,7 @@ public class OrderController {
         this.orderRepository = orderRepository;
     }
 
+    /** Create order and tell frontend where to go next (payment page). */
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody LaundryOrder orderRequest) {
         try {
@@ -34,42 +34,25 @@ public class OrderController {
         }
     }
 
+    /** Get one order (avoid Optional generic clash). */
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrder(@PathVariable Long id) {
-        return orderRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Order not found")));
+        var opt = orderRepository.findById(id);
+        if (opt.isPresent()) return ResponseEntity.ok(opt.get());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Order not found"));
     }
 
+    /** List all orders. */
     @GetMapping
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(orderRepository.findAll());
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestParam("value") String value) {
-        return orderRepository.findById(id)
-                .map(order -> {
-                    try {
-                        OrderStatus status = OrderStatus.valueOf(value);
-                        order.setStatus(status);
-                        LaundryOrder saved = orderRepository.save(order);
-                        return ResponseEntity.ok(saved);
-                    } catch (IllegalArgumentException ex) {
-                        return ResponseEntity.badRequest()
-                                .body(Map.of("error", "Invalid order status"));
-                    }
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Order not found")));
-    }
-
+    /** Delete an order. */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         if (!orderRepository.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Order not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Order not found"));
         }
         orderRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("message", "Order deleted"));

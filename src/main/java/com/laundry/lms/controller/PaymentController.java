@@ -113,9 +113,9 @@ public class PaymentController {
     @PostMapping("/cod/confirm")
     public ResponseEntity<?> confirmCod(@Valid @RequestBody CodConfirmRequest request) {
         try {
-            paymentService.confirmCod(request.getOrderId());
+            paymentService.confirmCod(request.orderId());
             Map<String, String> payload = new HashMap<>();
-            payload.put("next", String.format("/orders/%d?cod=1", request.getOrderId()));
+            payload.put("next", String.format("/orders/%d?cod=1", request.orderId()));
             return ResponseEntity.ok(payload);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));
@@ -125,7 +125,7 @@ public class PaymentController {
     @PostMapping("/checkout")
     public ResponseEntity<?> createCheckout(@Valid @RequestBody PaymentCheckoutRequest request) {
         try {
-            String redirectUrl = paymentService.createDemoCheckout(request.getOrderId());
+            String redirectUrl = paymentService.createDemoCheckout(request.orderId());
             Map<String, String> payload = new HashMap<>();
             payload.put("redirectUrl", redirectUrl);
             return ResponseEntity.ok(payload);
@@ -136,12 +136,12 @@ public class PaymentController {
 
     @PostMapping("/demo/webhook")
     public ResponseEntity<?> handleDemoWebhook(@Valid @RequestBody DemoWebhookRequest request) {
-        String status = request.getStatus();
+        String status = request.status();
         try {
             if ("success".equalsIgnoreCase(status)) {
-                paymentService.markCardPaid(request.getOrderId(), request.getDemoRef(), request.getAmountLkr());
+                paymentService.markCardPaid(request.orderId(), request.demoRef(), request.amountLkr());
             } else {
-                paymentService.markFailed(request.getOrderId(), "demo-failed");
+                paymentService.markFailed(request.orderId(), "demo-failed");
             }
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException ex) {
