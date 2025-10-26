@@ -10,10 +10,20 @@ import com.laundry.lms.model.User;
 import com.laundry.lms.repository.LaundryOrderRepository;
 import com.laundry.lms.repository.UserRepository;
 import com.laundry.lms.service.CatalogService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*")
 public class OrderController {
 
     private final LaundryOrderRepository orderRepository;
@@ -46,8 +56,16 @@ public class OrderController {
         return orders.stream().map(OrderResponse::from).collect(Collectors.toList());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
+        Optional<LaundryOrder> orderOpt = orderRepository.findById(id);
+        return orderOpt.map(order -> ResponseEntity.ok(OrderResponse.from(order)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     @PostMapping
-    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest request) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest request,
+                                         HttpServletRequest httpRequest) {
         if (!catalogService.isValidService(request.getServiceType())) {
             return ResponseEntity.badRequest().body(error("Invalid service type"));
         }
@@ -82,9 +100,16 @@ public class OrderController {
         order.setPaymentMethod(null);
         order.setPaidAt(null);
 
-        LaundryOrder saved = orderRepository.save(order);
-        OrderCreateResponse response = new OrderCreateResponse(saved.getId(), String.format("/pay?orderId=%d", saved.getId()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            LaundryOrder saved = orderRepository.save(order);
+            OrderCreateResponse response = new OrderCreateResponse(
+                    saved.getId(),
+                    buildNextUrl(httpRequest, saved.getId())
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("Failed to create order"));
+        }
     }
 
     @PatchMapping("/{id}/status")
@@ -117,5 +142,30 @@ public class OrderController {
         Map<String, String> error = new HashMap<>();
         error.put("error", message);
         return error;
+    }
+
+    private String buildNextUrl(HttpServletRequest httpRequest, Long orderId) {
+        String redirectPath = String.format("/frontend/pay.html?orderId=%d", orderId);
+        if (httpRequest == null) {
+            return redirectPath;
+        }
+
+        String origin = httpRequest.getHeader("Origin");
+        if (origin == null || origin.isBlank()) {
+            String referer = httpRequest.getHeader("Referer");
+            if (referer != null && !referer.isBlank()) {
+                int schemeBoundary = referer.indexOf("//");
+                if (schemeBoundary > 0) {
+                    int pathStart = referer.indexOf('/', schemeBoundary + 2);
+                    origin = pathStart > 0 ? referer.substring(0, pathStart) : referer;
+                }
+            }
+        }
+
+        if (origin == null || origin.isBlank()) {
+            return redirectPath;
+        }
+
+        return origin + redirectPath;
     }
 }
