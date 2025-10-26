@@ -10,6 +10,7 @@ import com.laundry.lms.model.User;
 import com.laundry.lms.repository.LaundryOrderRepository;
 import com.laundry.lms.repository.UserRepository;
 import com.laundry.lms.service.CatalogService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +64,8 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest request) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest request,
+                                         HttpServletRequest httpRequest) {
         if (!catalogService.isValidService(request.getServiceType())) {
             return ResponseEntity.badRequest().body(error("Invalid service type"));
         }
@@ -102,7 +104,7 @@ public class OrderController {
             LaundryOrder saved = orderRepository.save(order);
             OrderCreateResponse response = new OrderCreateResponse(
                     saved.getId(),
-                    String.format("/frontend/pay.html?orderId=%d", saved.getId())
+                    buildNextUrl(httpRequest, saved.getId())
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception ex) {
@@ -140,5 +142,30 @@ public class OrderController {
         Map<String, String> error = new HashMap<>();
         error.put("error", message);
         return error;
+    }
+
+    private String buildNextUrl(HttpServletRequest httpRequest, Long orderId) {
+        String redirectPath = String.format("/frontend/pay.html?orderId=%d", orderId);
+        if (httpRequest == null) {
+            return redirectPath;
+        }
+
+        String origin = httpRequest.getHeader("Origin");
+        if (origin == null || origin.isBlank()) {
+            String referer = httpRequest.getHeader("Referer");
+            if (referer != null && !referer.isBlank()) {
+                int schemeBoundary = referer.indexOf("//");
+                if (schemeBoundary > 0) {
+                    int pathStart = referer.indexOf('/', schemeBoundary + 2);
+                    origin = pathStart > 0 ? referer.substring(0, pathStart) : referer;
+                }
+            }
+        }
+
+        if (origin == null || origin.isBlank()) {
+            return redirectPath;
+        }
+
+        return origin + redirectPath;
     }
 }
