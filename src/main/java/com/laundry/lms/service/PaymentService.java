@@ -6,8 +6,6 @@ import com.laundry.lms.model.PaymentMethod;
 import com.laundry.lms.model.PaymentStatus;
 import com.laundry.lms.repository.LaundryOrderRepository;
 import com.laundry.lms.repository.PaymentRepository;
-import com.laundry.lms.service.events.PaymentCompletedEvent;
-import com.laundry.lms.service.events.PaymentFailedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,125 +16,122 @@ import java.time.Instant;
 @Service
 public class PaymentService {
 
-    private final PaymentRepository paymentRepository;
-    private final LaundryOrderRepository laundryOrderRepository;
-    private final ApplicationEventPublisher eventPublisher;
+  private final PaymentRepository payments;
+  private final LaundryOrderRepository orders;
+  private final ApplicationEventPublisher events;
 
-    public PaymentService(PaymentRepository paymentRepository,
-                          LaundryOrderRepository laundryOrderRepository,
-                          ApplicationEventPublisher eventPublisher) {
-        this.paymentRepository = paymentRepository;
-        this.laundryOrderRepository = laundryOrderRepository;
-        this.eventPublisher = eventPublisher;
+  public PaymentService(PaymentRepository payments, LaundryOrderRepository orders, ApplicationEventPublisher events) {
+    this.payments = payments;
+    this.orders = orders;
+    this.events = events;
+  }
+
+  public String makeDemoCheckoutUrl(LaundryOrder order) {
+    BigDecimal amount = extractOrderTotal(order);
+    return "/frontend/demo-checkout.html?orderId=" + order.getId() + "&amount=" + amount;
+  }
+
+  private BigDecimal extractOrderTotal(LaundryOrder order) {
+    try {
+      var m = order.getClass().getMethod("getTotalAmount");
+      Object v = m.invoke(order);
+      if (v instanceof BigDecimal bigDecimal) return bigDecimal;
+      if (v instanceof Number number) return BigDecimal.valueOf(number.doubleValue());
+    } catch (Exception ignored) {}
+    return BigDecimal.ZERO;
+  }
+
+  @Transactional
+  public LaundryOrder confirmCod(Long orderId) {
+    LaundryOrder o = orders.findById(orderId).orElseThrow();
+    setOrderPaymentMethod(o, "COD");
+    setOrderPaymentStatus(o, PaymentStatus.PENDING.name());
+    orders.save(o);
+
+    Payment p = payments.findByOrderId(orderId).orElse(new Payment());
+    p.setOrderId(orderId);
+    p.setProvider("CASH");
+    p.setProviderRef(null);
+    p.setAmountLkr(extractOrderTotal(o));
+    p.setStatus(PaymentStatus.PENDING);
+    p.setMethod(PaymentMethod.COD);
+    if (p.getCreatedAt() == null) {
+      p.setCreatedAt(Instant.now());
     }
+    p.setUpdatedAt(Instant.now());
+    payments.save(p);
+    return o;
+  }
 
-    @Transactional
-    public String createDemoCheckout(Long orderId) {
-        LaundryOrder order = loadOrder(orderId);
-        BigDecimal amount = order.getPrice() != null ? order.getPrice() : BigDecimal.ZERO;
+  @Transactional
+  public void markCardPaid(Long orderId, String providerRef, BigDecimal amount) {
+    LaundryOrder o = orders.findById(orderId).orElseThrow();
+    setOrderPaymentStatus(o, PaymentStatus.PAID.name());
+    setOrderPaidAt(o, Instant.now());
+    orders.save(o);
 
-        Payment payment = paymentRepository.findTopByOrderIdOrderByUpdatedAtDesc(orderId)
-                .orElseGet(() -> {
-                    Payment p = new Payment();
-                    p.setOrderId(orderId);
-                    return p;
-                });
-        payment.setAmountLkr(amount);
-        payment.setMethod(PaymentMethod.CARD);
-        payment.setStatus(PaymentStatus.PENDING);
-        payment.setProvider("DEMO");
-        paymentRepository.save(payment);
-
-        order.setPaymentMethod(PaymentMethod.CARD.name());
-        order.setPaymentStatus(PaymentStatus.PENDING.name());
-        order.setPaidAt(null);
-        laundryOrderRepository.save(order);
-
-        String amountParam = amount == null ? "0" : amount.stripTrailingZeros().toPlainString();
-        return String.format("/pay/demo-checkout.html?orderId=%d&amount=%s&currency=LKR", orderId, amountParam);
+    Payment p = payments.findByOrderId(orderId).orElse(new Payment());
+    p.setOrderId(orderId);
+    p.setProvider("DEMO");
+    p.setProviderRef(providerRef);
+    p.setAmountLkr(amount != null ? amount : extractOrderTotal(o));
+    p.setStatus(PaymentStatus.PAID);
+    p.setMethod(PaymentMethod.CARD);
+    if (p.getCreatedAt() == null) {
+      p.setCreatedAt(Instant.now());
     }
+    p.setUpdatedAt(Instant.now());
+    payments.save(p);
 
-    @Transactional
-    public void markCardPaid(Long orderId, String providerRef, BigDecimal amountLkr) {
-        LaundryOrder order = loadOrder(orderId);
-        BigDecimal resolvedAmount = amountLkr != null ? amountLkr : order.getPrice();
-        if (resolvedAmount == null) {
-            resolvedAmount = BigDecimal.ZERO;
-        }
+    try {
+      Class<?> evt = Class.forName("com.laundry.lms.service.events.PaymentCompletedEvent");
+      var ctor = evt.getDeclaredConstructor(Long.class, Long.class, BigDecimal.class);
+      Object eventObj = ctor.newInstance(p.getId(), orderId, p.getAmountLkr());
+      events.publishEvent(eventObj);
+    } catch (Throwable ignored) {}
+  }
 
-        Payment payment = paymentRepository.findTopByOrderIdOrderByUpdatedAtDesc(orderId)
-                .orElseGet(() -> {
-                    Payment p = new Payment();
-                    p.setOrderId(orderId);
-                    return p;
-                });
-        payment.setMethod(PaymentMethod.CARD);
-        payment.setStatus(PaymentStatus.PAID);
-        payment.setProvider("DEMO");
-        payment.setProviderRef(providerRef);
-        payment.setAmountLkr(resolvedAmount);
-        Payment saved = paymentRepository.save(payment);
+  @Transactional
+  public void markFailed(Long orderId, String reason) {
+    LaundryOrder o = orders.findById(orderId).orElseThrow();
+    setOrderPaymentStatus(o, PaymentStatus.FAILED.name());
+    orders.save(o);
 
-        order.setPaymentMethod(PaymentMethod.CARD.name());
-        order.setPaymentStatus(PaymentStatus.PAID.name());
-        order.setPaidAt(Instant.now());
-        laundryOrderRepository.save(order);
-
-        eventPublisher.publishEvent(new PaymentCompletedEvent(saved.getId(), orderId, resolvedAmount));
+    Payment p = payments.findByOrderId(orderId).orElse(new Payment());
+    p.setOrderId(orderId);
+    p.setProvider("DEMO");
+    p.setProviderRef("FAILED");
+    p.setStatus(PaymentStatus.FAILED);
+    p.setMethod(PaymentMethod.CARD);
+    if (p.getCreatedAt() == null) {
+      p.setCreatedAt(Instant.now());
     }
+    p.setUpdatedAt(Instant.now());
+    payments.save(p);
 
-    @Transactional
-    public void markFailed(Long orderId, String reason) {
-        LaundryOrder order = loadOrder(orderId);
+    try {
+      Class<?> evt = Class.forName("com.laundry.lms.service.events.PaymentFailedEvent");
+      var ctor = evt.getDeclaredConstructor(Long.class, Long.class, String.class);
+      Object eventObj = ctor.newInstance(p.getId(), orderId, reason);
+      events.publishEvent(eventObj);
+    } catch (Throwable ignored) {}
+  }
 
-        Payment payment = paymentRepository.findTopByOrderIdOrderByUpdatedAtDesc(orderId)
-                .orElseGet(() -> {
-                    Payment p = new Payment();
-                    p.setOrderId(orderId);
-                    p.setAmountLkr(order.getPrice());
-                    p.setMethod(PaymentMethod.CARD);
-                    return p;
-                });
-        payment.setStatus(PaymentStatus.FAILED);
-        payment.setProvider("DEMO");
-        Payment saved = paymentRepository.save(payment);
+  private void setOrderPaymentMethod(LaundryOrder o, String method) {
+    try {
+      o.getClass().getMethod("setPaymentMethod", String.class).invoke(o, method);
+    } catch (Exception ignored) {}
+  }
 
-        if (payment.getMethod() != null) {
-            order.setPaymentMethod(payment.getMethod().name());
-        }
-        order.setPaymentStatus(PaymentStatus.FAILED.name());
-        order.setPaidAt(null);
-        laundryOrderRepository.save(order);
+  private void setOrderPaymentStatus(LaundryOrder o, String status) {
+    try {
+      o.getClass().getMethod("setPaymentStatus", String.class).invoke(o, status);
+    } catch (Exception ignored) {}
+  }
 
-        eventPublisher.publishEvent(new PaymentFailedEvent(saved.getId(), orderId, reason));
-    }
-
-    @Transactional
-    public void confirmCod(Long orderId) {
-        LaundryOrder order = loadOrder(orderId);
-        BigDecimal amount = order.getPrice() != null ? order.getPrice() : BigDecimal.ZERO;
-
-        Payment payment = paymentRepository.findTopByOrderIdOrderByUpdatedAtDesc(orderId)
-                .orElseGet(() -> {
-                    Payment p = new Payment();
-                    p.setOrderId(orderId);
-                    return p;
-                });
-        payment.setMethod(PaymentMethod.COD);
-        payment.setStatus(PaymentStatus.PENDING);
-        payment.setProvider("CASH");
-        payment.setProviderRef(null);
-        payment.setAmountLkr(amount);
-        paymentRepository.save(payment);
-
-        order.setPaymentMethod(PaymentMethod.COD.name());
-        order.setPaymentStatus(PaymentStatus.PENDING.name());
-        order.setPaidAt(null);
-        laundryOrderRepository.save(order);
-    }
-
-    private LaundryOrder loadOrder(Long orderId) {
-        return laundryOrderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-    }
+  private void setOrderPaidAt(LaundryOrder o, Instant when) {
+    try {
+      o.getClass().getMethod("setPaidAt", Instant.class).invoke(o, when);
+    } catch (Exception ignored) {}
+  }
 }

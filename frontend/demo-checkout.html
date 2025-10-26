@@ -1,110 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Demo Checkout</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartFold | Demo Checkout</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="pay-demo">
-<main class="demo-wrapper">
-    <header>
-        <h1>Demo Checkout</h1>
-        <p class="muted">Sandbox / Demo — no real charges will be made.</p>
-    </header>
-    <section class="demo-summary">
-        <p id="demoDetails">Verifying order…</p>
-        <p id="demoAmount" class="demo-amount"></p>
-    </section>
-    <div class="demo-actions">
-        <button type="button" class="btn-primary" id="successBtn">Simulate Success</button>
-        <button type="button" class="btn-secondary" id="failBtn">Simulate Fail</button>
-    </div>
-    <p class="muted tiny" id="demoFeedback"></p>
-</main>
-<script type="module">
-import { api, toastError, toastSuccess } from "./common.js";
+<body class="demo-checkout">
+  <main class="card">
+    <h2>Demo Checkout</h2>
+    <p id="orderInfo">Order # – LKR —</p>
+    <button id="successBtn" class="btn primary">Simulate Success</button>
+    <button id="failBtn" class="btn danger">Simulate Fail</button>
+    <small>Sandbox simulation only – no real transaction.</small>
+  </main>
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const orderId = qs.get("orderId");
+    const amount = qs.get("amount") || 0;
+    document.getElementById("orderInfo").textContent = `Order #${orderId} – LKR ${amount}`;
 
-const params = new URLSearchParams(window.location.search);
-const orderId = Number.parseInt(params.get("orderId"), 10);
-const amount = Number.parseFloat(params.get("amount"));
-const currency = params.get("currency") || "LKR";
+    document.getElementById("successBtn").onclick = async () => {
+      const ref = "D-" + Date.now();
+      await fetch("http://localhost:8080/api/payments/demo/webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          status: "success",
+          demoRef: ref,
+          amountLkr: Number(amount),
+        }),
+      });
+      alert("Payment Successful (Demo)");
+      location.assign(`/frontend/dashboard-user.html?paid=1`);
+    };
 
-const detailsEl = document.getElementById("demoDetails");
-const amountEl = document.getElementById("demoAmount");
-const feedbackEl = document.getElementById("demoFeedback");
-const successBtn = document.getElementById("successBtn");
-const failBtn = document.getElementById("failBtn");
-
-const formatCurrency = (value) => {
-    const numeric = Number.isFinite(value) ? value : 0;
-    return `${currency} ${numeric.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
-
-const setFeedback = (message) => {
-    if (!feedbackEl) return;
-    feedbackEl.textContent = message || "";
-};
-
-if (!orderId) {
-    detailsEl.textContent = "Missing order reference. Please close this window.";
-    successBtn.disabled = true;
-    failBtn.disabled = true;
-} else {
-    detailsEl.textContent = `Order #${orderId} ready for processing.`;
-    amountEl.textContent = Number.isFinite(amount)
-        ? `Amount: ${formatCurrency(amount)}`
-        : `Amount: ${currency} —`;
-}
-
-const disableButtons = (state) => {
-    successBtn.disabled = state;
-    failBtn.disabled = state;
-};
-
-const redirectToDashboard = (search) => {
-    window.location.assign(`/frontend/dashboard-user.html${search}`);
-};
-
-successBtn?.addEventListener("click", async () => {
-    if (!orderId) return;
-    disableButtons(true);
-    setFeedback("Processing success…");
-    try {
-        await api.post("/api/payments/demo/webhook", {
-            orderId,
-            status: "success",
-            demoRef: `D-${Date.now()}`,
-            amountLkr: Number.isFinite(amount) ? Number(amount.toFixed(2)) : undefined,
-        });
-        toastSuccess("Payment Successful (Demo)");
-        redirectToDashboard("?paid=1");
-    } catch (error) {
-        toastError(error?.message || "Demo success failed");
-        setFeedback("Please try again.");
-        disableButtons(false);
-    }
-});
-
-failBtn?.addEventListener("click", async () => {
-    if (!orderId) return;
-    disableButtons(true);
-    setFeedback("Marking payment as failed…");
-    try {
-        await api.post("/api/payments/demo/webhook", {
-            orderId,
-            status: "failed",
-            demoRef: `D-${Date.now()}`,
-            amountLkr: Number.isFinite(amount) ? Number(amount.toFixed(2)) : undefined,
-        });
-        toastError("Payment failed (Demo)");
-        redirectToDashboard("?failed=1");
-    } catch (error) {
-        toastError(error?.message || "Demo failure request failed");
-        setFeedback("Unable to update status. Try again.");
-        disableButtons(false);
-    }
-});
-</script>
+    document.getElementById("failBtn").onclick = async () => {
+      await fetch("http://localhost:8080/api/payments/demo/webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          status: "failed",
+          demoRef: "F-" + Date.now(),
+          amountLkr: Number(amount),
+        }),
+      });
+      alert("Payment Failed (Demo)");
+      location.assign(`/frontend/dashboard-user.html?failed=1`);
+    };
+  </script>
 </body>
 </html>
