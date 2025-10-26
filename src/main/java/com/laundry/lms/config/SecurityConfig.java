@@ -14,41 +14,31 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // 🔓 Disable CSRF (for simple JSON-based APIs)
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(
-                                new AntPathRequestMatcher("/api/**"),
-                                new AntPathRequestMatcher("/h2-console/**")
-                        )
-                )
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+      .cors(Customizer.withDefaults())
+      .csrf(csrf -> csrf
+        .ignoringRequestMatchers(
+          new AntPathRequestMatcher("/api/**"),
+          new AntPathRequestMatcher("/h2-console/**")
+        )
+      )
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers(
+          "/frontend/**", "/api/orders/**", "/api/payments/**",
+          "/api/auth/**", "/api/catalog/**", "/h2-console/**",
+          "/swagger-ui/**", "/v3/api-docs/**"
+        ).permitAll()
+        .anyRequest().permitAll()
+      )
+      .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+      .httpBasic(Customizer.withDefaults());
+    return http.build();
+  }
 
-                // ✅ Permit all frontend and essential API endpoints
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/frontend/**",      // all your HTML/JS files
-                                "/api/orders/**",    // order create/list/get
-                                "/api/payments/**",  // payment + COD + demo checkout
-                                "/api/auth/**",      // login/register APIs
-                                "/api/catalog/**",   // service catalog
-                                "/h2-console/**"     // embedded DB console
-                        ).permitAll()
-                        .anyRequest().permitAll()
-                )
-
-                // ⚙️ Allow H2 Console to display properly
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-
-                // 🧠 Use basic auth (optional; you can later switch to JWT or form login)
-                .httpBasic(Customizer.withDefaults());
-
-        return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }
