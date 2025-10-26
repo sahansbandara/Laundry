@@ -1,5 +1,5 @@
 // Backend base URL
-const API = "http://localhost:8080";
+const API_BASE = window.API_BASE || "http://localhost:8080";
 const toastContainerId = "toast-container";
 const AUTH_STORAGE_KEY = "smartfold_auth";
 
@@ -65,22 +65,26 @@ async function handleResponse(response) {
     }
     return data;
 }
-async function request(url, options = {}) {
+async function request(path, options = {}) {
     const auth = getAuth();
     const headers = {
         "Content-Type": "application/json",
         ...options.headers,
     };
     if (auth?.token) headers.Authorization = `Bearer ${auth.token}`;
-    const res = await fetch(url, { ...options, headers });
+    const fetchOptions = {
+        ...options,
+        headers,
+        credentials: "include",
+    };
+    const res = await fetch(`${API_BASE}${path}`, fetchOptions);
     return handleResponse(res);
 }
 export const api = {
-    get: (p) => request(`${API}${p}`, { method: "GET" }),
-    post: (p, b) => request(`${API}${p}`, { method: "POST", body: JSON.stringify(b) }),
-    patch: (p, b) =>
-        request(`${API}${p}`, { method: "PATCH", body: b ? JSON.stringify(b) : undefined }),
-    del: (p) => request(`${API}${p}`, { method: "DELETE" }),
+    get: (p) => request(p, { method: "GET" }),
+    post: (p, b) => request(p, { method: "POST", body: JSON.stringify(b) }),
+    patch: (p, b) => request(p, { method: "PATCH", body: b ? JSON.stringify(b) : undefined }),
+    del: (p) => request(p, { method: "DELETE" }),
 };
 
 /* ---------- Auth utils ---------- */

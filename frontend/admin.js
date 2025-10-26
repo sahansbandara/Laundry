@@ -213,8 +213,9 @@ orderForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!validateOrderForm()) return;
 
+    const customerIdValue = parseInt(orderCustomer.value, 10);
     const payload = {
-        customerId: parseInt(orderCustomer.value, 10),
+        customer: Number.isFinite(customerIdValue) ? { id: customerIdValue } : null,
         serviceType: orderService.value,
         quantity: parseFloat(orderQuantity.value),
         unit: orderUnit.value,
@@ -283,7 +284,8 @@ async function populateCustomerOptions() {
 
 async function loadOrders() {
     try {
-        orders = await api.get("/api/orders");
+        const data = await api.get("/api/orders");
+        orders = data.map(normalizeOrder);
         renderOrders();
         updateKpis();
     } catch (error) {
@@ -291,11 +293,23 @@ async function loadOrders() {
     }
 }
 
+function normalizeOrder(order = {}) {
+    const customer = order.customer ?? null;
+    const customerId = order.customerId ?? customer?.id ?? null;
+    const customerName = order.customerName ?? customer?.name ?? "—";
+    return {
+        ...order,
+        customerId,
+        customerName,
+    };
+}
+
 function renderOrders() {
     const filtered = orders.filter((order) => {
         const serviceMatches = !filterService.value || order.serviceType === filterService.value;
         const statusMatches = !filterStatus.value || order.status === filterStatus.value;
-        const customerMatches = !filterCustomer.value || order.customerId === Number(filterCustomer.value);
+        const customerMatches =
+            !filterCustomer.value || order.customerId === Number(filterCustomer.value);
         return serviceMatches && statusMatches && customerMatches;
     });
 
