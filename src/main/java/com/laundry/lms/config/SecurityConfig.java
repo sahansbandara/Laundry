@@ -23,9 +23,7 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/api/catalog/**",
                                 "/frontend/**",
-                                "/api/payments/cod/confirm",
-                                "/api/payments/checkout",
-                                "/api/payments/demo/webhook"
+                                "/api/payments/**"
                         ).permitAll()
                         .anyRequest().permitAll())
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))

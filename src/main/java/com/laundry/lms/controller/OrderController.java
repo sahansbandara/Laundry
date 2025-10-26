@@ -13,7 +13,16 @@ import com.laundry.lms.service.CatalogService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +32,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin("*")
+@CrossOrigin(origins = "*")
 public class OrderController {
 
     private final LaundryOrderRepository orderRepository;
@@ -44,6 +53,13 @@ public class OrderController {
                 ? orderRepository.findByCustomerId(userId)
                 : orderRepository.findAll();
         return orders.stream().map(OrderResponse::from).collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
+        Optional<LaundryOrder> orderOpt = orderRepository.findById(id);
+        return orderOpt.map(order -> ResponseEntity.ok(OrderResponse.from(order)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
@@ -82,9 +98,16 @@ public class OrderController {
         order.setPaymentMethod(null);
         order.setPaidAt(null);
 
-        LaundryOrder saved = orderRepository.save(order);
-        OrderCreateResponse response = new OrderCreateResponse(saved.getId(), String.format("/pay?orderId=%d", saved.getId()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            LaundryOrder saved = orderRepository.save(order);
+            OrderCreateResponse response = new OrderCreateResponse(
+                    saved.getId(),
+                    String.format("/frontend/pay.html?orderId=%d", saved.getId())
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error("Failed to create order"));
+        }
     }
 
     @PatchMapping("/{id}/status")
