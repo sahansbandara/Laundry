@@ -3,6 +3,7 @@ package com.laundry.lms.controller;
 import com.laundry.lms.dto.CodConfirmRequest;
 import com.laundry.lms.dto.DemoWebhookRequest;
 import com.laundry.lms.dto.PaymentCheckoutRequest;
+import com.laundry.lms.dto.PaymentConfirmResponse;
 import com.laundry.lms.dto.PaymentRequest;
 import com.laundry.lms.dto.PaymentResponse;
 import com.laundry.lms.model.LaundryOrder;
@@ -113,10 +114,10 @@ public class PaymentController {
     @PostMapping("/cod/confirm")
     public ResponseEntity<?> confirmCod(@Valid @RequestBody CodConfirmRequest request) {
         try {
-            paymentService.confirmCod(request.orderId());
-            Map<String, String> payload = new HashMap<>();
-            payload.put("next", String.format("/orders/%d?cod=1", request.orderId()));
-            return ResponseEntity.ok(payload);
+            Payment payment = paymentService.confirmCod(request.orderId());
+            PaymentResponse payload = PaymentResponse.from(payment);
+            String next = String.format("/frontend/dashboard-user.html?cod=1&orderId=%d", request.orderId());
+            return ResponseEntity.ok(new PaymentConfirmResponse(payload, next));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));
         }

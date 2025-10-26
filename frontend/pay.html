@@ -64,7 +64,8 @@
 <body class="pay-page">
 <main class="card pay-container">
     <h2>Choose Payment Method</h2>
-    <p id="orderSummary"><em>Order – LKR —</em></p>
+    <p id="orderSummary" class="muted">Loading order details…</p>
+    <p id="orderDetails" class="small-text muted"></p>
 
     <label>
         <input type="radio" name="method" value="COD" checked />
@@ -76,11 +77,9 @@
         Card – Online (Sandbox)
     </label>
 
-    <button id="payBtn" class="btn primary">Continue</button>
+    <button id="payBtn" class="btn primary" disabled>Continue</button>
     <small>Sandbox demo – no real charges.</small>
-</main>
-
-<!-- ✅ Correct relative path to JS -->
-<script src="./pay.js" defer></script>
+  </main>
+  <script type="module" src="./pay.js"></script>
 </body>
 </html>

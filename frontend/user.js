@@ -9,6 +9,37 @@ import {
 
 const user = requireAuth("USER");
 
+/* --- One-time query param toasts --- */
+(() => {
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+    let updated = false;
+
+    if (params.has("paid")) {
+        toastSuccess("Payment recorded successfully.");
+        params.delete("paid");
+        updated = true;
+    }
+
+    if (params.has("cod")) {
+        toastSuccess("Cash on delivery confirmed.");
+        params.delete("cod");
+        updated = true;
+    }
+
+    if (params.has("failed")) {
+        toastError("Payment failed. Please try again.");
+        params.delete("failed");
+        updated = true;
+    }
+
+    if (updated) {
+        const newSearch = params.toString();
+        const next = `${url.pathname}${newSearch ? `?${newSearch}` : ""}${url.hash}`;
+        window.history.replaceState({}, document.title, next);
+    }
+})();
+
 /* --- Viewport helpers --- */
 function syncViewportHeightVar() {
     const vh = window.innerHeight * 0.01;
