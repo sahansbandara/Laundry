@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Demo Checkout</title>
-    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body class="pay-demo">
 <main class="demo-wrapper">
@@ -23,7 +23,7 @@
     <p class="muted tiny" id="demoFeedback"></p>
 </main>
 <script type="module">
-import { api, toastError, toastSuccess } from "../common.js";
+import { api, toastError, toastSuccess } from "./common.js";
 
 const params = new URLSearchParams(window.location.search);
 const orderId = Number.parseInt(params.get("orderId"), 10);
@@ -62,6 +62,10 @@ const disableButtons = (state) => {
     failBtn.disabled = state;
 };
 
+const redirectToDashboard = (search) => {
+    window.location.assign(`/frontend/dashboard-user.html${search}`);
+};
+
 successBtn?.addEventListener("click", async () => {
     if (!orderId) return;
     disableButtons(true);
@@ -74,7 +78,7 @@ successBtn?.addEventListener("click", async () => {
             amountLkr: Number.isFinite(amount) ? Number(amount.toFixed(2)) : undefined,
         });
         toastSuccess("Payment Successful (Demo)");
-        window.location.assign(`/orders/${orderId}?paid=1`);
+        redirectToDashboard("?paid=1");
     } catch (error) {
         toastError(error?.message || "Demo success failed");
         setFeedback("Please try again.");
@@ -90,9 +94,11 @@ failBtn?.addEventListener("click", async () => {
         await api.post("/api/payments/demo/webhook", {
             orderId,
             status: "failed",
+            demoRef: `D-${Date.now()}`,
+            amountLkr: Number.isFinite(amount) ? Number(amount.toFixed(2)) : undefined,
         });
         toastError("Payment failed (Demo)");
-        window.location.assign(`/orders/${orderId}?failed=1`);
+        redirectToDashboard("?failed=1");
     } catch (error) {
         toastError(error?.message || "Demo failure request failed");
         setFeedback("Unable to update status. Try again.");
