@@ -9,6 +9,15 @@ import {
 
 const user = requireAuth("USER");
 
+/* --- Viewport helpers --- */
+function syncViewportHeightVar() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+window.addEventListener("resize", syncViewportHeightVar);
+window.addEventListener("orientationchange", syncViewportHeightVar);
+syncViewportHeightVar();
+
 /* --- DOM hooks --- */
 const logoutBtn = document.getElementById("logout-user");
 const placeOrderMount = document.getElementById("placeOrderMount");
