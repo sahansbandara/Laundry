@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartFold | Demo Checkout</title>
+  <link rel="stylesheet" href="./style.css" />
+  <style>body{font-family:Inter,system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f6f8fb}.card{background:#fff;padding:28px;border-radius:16px;box-shadow:0 8px 24px rgba(2,6,23,.06);width:420px;max-width:92vw;text-align:center}.btn{width:100%;background:#2563eb;border:0;color:#fff;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;margin:6px 0}.danger{background:#ef4444}</style>
+</head>
+<body>
+  <main class="card">
+    <h2>Demo Checkout</h2>
+    <p id="orderInfo">Loading…</p>
+    <button id="successBtn" class="btn">Simulate Success</button>
+    <button id="failBtn" class="btn danger">Simulate Fail</button>
+    <small>Sandbox simulation — no real transaction.</small>
+  </main>
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const orderId = qs.get("orderId");
+    const amount = Number(qs.get("amount") || 0);
+    document.getElementById("orderInfo").textContent = `Order #${orderId} — LKR ${amount}`;
+
+    document.getElementById("successBtn").onclick = async () => {
+      await fetch(`/api/payments/demo/webhook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status: "success", demoRef: "D-" + Date.now(), amountLkr: amount }),
+      });
+      alert("Payment Successful (Demo)");
+      location.assign(`/frontend/dashboard-user.html?paid=1`);
+    };
+    document.getElementById("failBtn").onclick = async () => {
+      await fetch(`/api/payments/demo/webhook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status: "failed", demoRef: "F-" + Date.now(), amountLkr: amount }),
+      });
+      alert("Payment Failed (Demo)");
+      location.assign(`/frontend/dashboard-user.html?failed=1`);
+    };
+  </script>
+</body>
+</html>

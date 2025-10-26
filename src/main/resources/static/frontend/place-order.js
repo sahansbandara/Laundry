@@ -1167,9 +1167,10 @@ window.initPlaceOrder = function initPlaceOrder() {
             .then((data) => {
                 updateRepeatButton();
                 toastSuccess("Order placed successfully");
-                const nextUrl = data?.next ?? `/frontend/pay.html?orderId=${data?.orderId}`;
-                if (!nextUrl) throw new Error("No redirect URL from server");
-                window.location.assign(nextUrl);
+                const { id, orderId } = data ?? {};
+                const targetId = id ?? orderId;
+                if (!targetId) throw new Error("Order ID missing");
+                window.location.assign(`/frontend/pay.html?orderId=${targetId}`);
             })
             .catch((err) => {
                 toastError(err?.message || "Failed to place order");
