@@ -14,42 +14,6 @@
     <button id="failBtn" class="btn danger">Simulate Fail</button>
     <small>Sandbox simulation only – no real transaction.</small>
   </main>
-  <script>
-    const qs = new URLSearchParams(location.search);
-    const orderId = qs.get("orderId");
-    const amount = qs.get("amount") || 0;
-    document.getElementById("orderInfo").textContent = `Order #${orderId} – LKR ${amount}`;
-
-    document.getElementById("successBtn").onclick = async () => {
-      const ref = "D-" + Date.now();
-      await fetch("http://localhost:8080/api/payments/demo/webhook", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId,
-          status: "success",
-          demoRef: ref,
-          amountLkr: Number(amount),
-        }),
-      });
-      alert("Payment Successful (Demo)");
-      location.assign(`/frontend/dashboard-user.html?paid=1`);
-    };
-
-    document.getElementById("failBtn").onclick = async () => {
-      await fetch("http://localhost:8080/api/payments/demo/webhook", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId,
-          status: "failed",
-          demoRef: "F-" + Date.now(),
-          amountLkr: Number(amount),
-        }),
-      });
-      alert("Payment Failed (Demo)");
-      location.assign(`/frontend/dashboard-user.html?failed=1`);
-    };
-  </script>
+  <script type="module" src="./demo-checkout.js"></script>
 </body>
 </html>

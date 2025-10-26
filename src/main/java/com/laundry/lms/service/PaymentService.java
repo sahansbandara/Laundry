@@ -38,6 +38,9 @@ public class PaymentService {
   }
 
   private BigDecimal extractOrderTotal(LaundryOrder order) {
+    if (order.getPrice() != null) {
+      return order.getPrice();
+    }
     try {
       var m = order.getClass().getMethod("getTotalAmount");
       Object v = m.invoke(order);
@@ -48,8 +51,9 @@ public class PaymentService {
   }
 
   @Transactional
-  public LaundryOrder confirmCod(Long orderId) {
-    LaundryOrder o = orders.findById(orderId).orElseThrow();
+  public Payment confirmCod(Long orderId) {
+    LaundryOrder o = orders.findById(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
     setOrderPaymentMethod(o, "COD");
     setOrderPaymentStatus(o, PaymentStatus.PENDING.name());
     orders.save(o);
@@ -65,22 +69,26 @@ public class PaymentService {
       p.setCreatedAt(Instant.now());
     }
     p.setUpdatedAt(Instant.now());
-    payments.save(p);
-    return o;
+    return payments.save(p);
   }
 
   @Transactional
   public void markCardPaid(Long orderId, String providerRef, BigDecimal amount) {
-    LaundryOrder o = orders.findById(orderId).orElseThrow();
+    LaundryOrder o = orders.findById(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
     setOrderPaymentStatus(o, PaymentStatus.PAID.name());
     setOrderPaidAt(o, Instant.now());
+    setOrderPaymentMethod(o, PaymentMethod.CARD.name());
     orders.save(o);
 
     Payment p = payments.findByOrderId(orderId).orElse(new Payment());
     p.setOrderId(orderId);
     p.setProvider("DEMO");
     p.setProviderRef(providerRef);
-    p.setAmountLkr(amount != null ? amount : extractOrderTotal(o));
+    BigDecimal finalAmount = (amount != null && amount.signum() > 0)
+        ? amount
+        : extractOrderTotal(o);
+    p.setAmountLkr(finalAmount);
     p.setStatus(PaymentStatus.PAID);
     p.setMethod(PaymentMethod.CARD);
     if (p.getCreatedAt() == null) {
@@ -99,8 +107,10 @@ public class PaymentService {
 
   @Transactional
   public void markFailed(Long orderId, String reason) {
-    LaundryOrder o = orders.findById(orderId).orElseThrow();
+    LaundryOrder o = orders.findById(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
     setOrderPaymentStatus(o, PaymentStatus.FAILED.name());
+    setOrderPaymentMethod(o, PaymentMethod.CARD.name());
     orders.save(o);
 
     Payment p = payments.findByOrderId(orderId).orElse(new Payment());

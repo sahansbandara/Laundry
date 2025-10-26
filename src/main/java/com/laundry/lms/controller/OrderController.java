@@ -2,12 +2,17 @@ package com.laundry.lms.controller;
 
 import com.laundry.lms.dto.OrderCreateResponse;
 import com.laundry.lms.model.LaundryOrder;
+import com.laundry.lms.model.OrderStatus;
+import com.laundry.lms.model.PaymentStatus;
+import com.laundry.lms.model.User;
 import com.laundry.lms.repository.LaundryOrderRepository;
+import com.laundry.lms.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -15,15 +20,45 @@ import java.util.Map;
 public class OrderController {
 
     private final LaundryOrderRepository orderRepository;
+    private final UserRepository userRepository;
 
-    public OrderController(LaundryOrderRepository orderRepository) {
+    public OrderController(LaundryOrderRepository orderRepository, UserRepository userRepository) {
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
 
     /** Create order and tell frontend where to go next (payment page). */
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody LaundryOrder orderRequest) {
         try {
+            if (orderRequest.getCustomer() == null || orderRequest.getCustomer().getId() == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Customer is required"));
+            }
+
+            Optional<User> customerOpt = userRepository.findById(orderRequest.getCustomer().getId());
+            if (customerOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Customer not found"));
+            }
+
+            if (orderRequest.getPrice() == null || orderRequest.getPrice().signum() <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Order total must be greater than zero"));
+            }
+
+            if (orderRequest.getServiceType() == null || orderRequest.getServiceType().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Service type is required"));
+            }
+
+            if (orderRequest.getQuantity() == null || orderRequest.getQuantity() <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Quantity must be greater than zero"));
+            }
+
+            orderRequest.setId(null);
+            orderRequest.setCustomer(customerOpt.get());
+            orderRequest.setStatus(OrderStatus.PENDING);
+            orderRequest.setPaymentStatus(PaymentStatus.PENDING.name());
+            orderRequest.setPaymentMethod(null);
+            orderRequest.setPaidAt(null);
+
             LaundryOrder saved = orderRepository.save(orderRequest);
             String next = "/frontend/pay.html?orderId=" + saved.getId();
             return ResponseEntity.status(HttpStatus.CREATED)
