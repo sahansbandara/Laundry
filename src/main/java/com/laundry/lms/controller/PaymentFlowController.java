@@ -7,6 +7,7 @@ import com.laundry.lms.dto.PaymentCheckoutRequest;
 import com.laundry.lms.dto.RedirectUrlResponse;
 import com.laundry.lms.repository.LaundryOrderRepository;
 import com.laundry.lms.service.PaymentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,7 +32,7 @@ public class PaymentFlowController {
   }
 
   @PostMapping("/cod/confirm")
-  public ResponseEntity<?> confirmCod(@RequestBody CodConfirmRequest req) {
+  public ResponseEntity<?> confirmCod(@Valid @RequestBody CodConfirmRequest req) {
     try {
       var o = payments.confirmCod(req.orderId());
       String next = "/frontend/dashboard-user.html?cod=1&orderId=" + o.getId();
@@ -42,18 +43,18 @@ public class PaymentFlowController {
   }
 
   @PostMapping("/checkout")
-  public ResponseEntity<?> checkout(@RequestBody PaymentCheckoutRequest req) {
-    return orders.findById(req.orderId())
-        .map(order -> {
-          String url = payments.makeDemoCheckoutUrl(order);
-          return ResponseEntity.ok(new RedirectUrlResponse(url));
-        })
-        .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(Map.of("error", "Order not found")));
+  public ResponseEntity<?> checkout(@Valid @RequestBody PaymentCheckoutRequest req) {
+    var opt = orders.findById(req.orderId());
+    if (opt.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(Map.of("error", "Order not found"));
+    }
+    String url = payments.makeDemoCheckoutUrl(opt.get());
+    return ResponseEntity.ok(new RedirectUrlResponse(url));
   }
 
   @PostMapping("/demo/webhook")
-  public ResponseEntity<?> webhook(@RequestBody DemoWebhookRequest req) {
+  public ResponseEntity<?> webhook(@Valid @RequestBody DemoWebhookRequest req) {
     try {
       if ("success".equalsIgnoreCase(req.status())) {
         payments.markCardPaid(req.orderId(), req.demoRef(), req.amountLkr());

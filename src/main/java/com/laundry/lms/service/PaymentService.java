@@ -31,6 +31,12 @@ public class PaymentService {
     return "/frontend/demo-checkout.html?orderId=" + order.getId() + "&amount=" + amount;
   }
 
+  public String createDemoCheckout(Long orderId) {
+    LaundryOrder order = orders.findById(orderId)
+        .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+    return makeDemoCheckoutUrl(order);
+  }
+
   private BigDecimal extractOrderTotal(LaundryOrder order) {
     try {
       var m = order.getClass().getMethod("getTotalAmount");
