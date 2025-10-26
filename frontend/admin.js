@@ -39,6 +39,18 @@ let users = [];
 let selectedMessageUser = null;
 let messageInterval = null;
 
+const formatLKR = (value) => {
+    const numeric = Number.isFinite(Number(value)) ? Number(value) : 0;
+    return `LKR ${numeric.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const paymentMethodLabel = (method) => {
+    if (!method) return "—";
+    if (method === "COD") return "COD – Pay at delivery";
+    if (method === "CARD") return "Card — Online";
+    return method;
+};
+
 const orderModal = document.getElementById("order-modal");
 const taskModal = document.getElementById("task-modal");
 const orderForm = document.getElementById("order-form");
@@ -445,13 +457,13 @@ function renderPayments() {
         paymentsBody.innerHTML = payments.map((payment) => {
             return `<tr>
         <td>#${payment.id}</td>
-        <td>${payment.orderId ? `#${payment.orderId} (${payment.orderServiceType || "Order"})` : "N/A"}</td>
-        <td>${Number(payment.amount).toLocaleString()}</td>
-        <td>${payment.method || "-"}</td>
+        <td>${payment.orderId ? `#${payment.orderId}` : "N/A"}</td>
+        <td>${formatLKR(payment.amountLkr)}</td>
+        <td>${paymentMethodLabel(payment.method)}</td>
         <td>${renderStatusBadge(payment.status)}</td>
         <td>${payment.paidAt ? new Date(payment.paidAt).toLocaleString() : "-"}</td>
         <td class="table-actions">
-          ${payment.status !== "COMPLETED" ? `<button data-complete-payment="${payment.id}" style="background:#22c55e;">Mark Completed</button>` : ""}
+          ${payment.status !== "PAID" ? `<button data-complete-payment="${payment.id}" style="background:#22c55e;">Mark Paid</button>` : ""}
           <button data-remove-payment="${payment.id}" style="background:#ef4444;">Delete</button>
         </td>
       </tr>`;
@@ -465,8 +477,8 @@ paymentsBody?.addEventListener("click", async (event) => {
 
     if (target.dataset.completePayment) {
         try {
-            await api.patch(`/api/payments/${target.dataset.completePayment}/status?value=COMPLETED`);
-            toastSuccess("Payment marked as completed");
+            await api.patch(`/api/payments/${target.dataset.completePayment}/status?value=PAID`);
+            toastSuccess("Payment marked as paid");
             await loadPayments();
         } catch (error) {
             toastError(error.message);
@@ -550,17 +562,19 @@ function updateKpis() {
         const now = new Date();
         const lastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
         const revenue = payments
-            .filter((payment) => payment.status === "COMPLETED")
+            .filter((payment) => payment.status === "PAID")
             .filter((payment) => {
                 if (!payment.paidAt) return false;
                 const paidDate = new Date(payment.paidAt);
                 return paidDate >= lastWeek;
             })
-            .reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-        kpiRevenue.textContent = Number(revenue).toLocaleString();
+            .reduce((sum, payment) => sum + Number(payment.amountLkr || 0), 0);
+        kpiRevenue.textContent = Number(revenue).toLocaleString("en-LK", { minimumFractionDigits: 0 });
     }
     if (kpiUnpaid) {
-        kpiUnpaid.textContent = payments.filter((payment) => payment.status === "PENDING").length.toString();
+        kpiUnpaid.textContent = payments
+            .filter((payment) => (payment.status || "").toUpperCase() === "PENDING")
+            .length.toString();
     }
 }
 

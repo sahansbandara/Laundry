@@ -394,7 +394,7 @@ function setupPaymentActions() {
                 tr.innerHTML = `
           <td>${payment.id}</td>
           <td>${payment.orderId}</td>
-          <td>LKR ${payment.amountLkr.toFixed(2)}</td>
+          <td>LKR ${Number(payment.amountLkr || 0).toFixed(2)}</td>
           <td><span class="status-pill">${payment.status}</span></td>
           <td>${date}</td>
           <td>
@@ -414,12 +414,12 @@ function setupPaymentActions() {
         event.preventDefault();
         const payload = {
             orderId: Number(form.orderId.value),
-            amountLkr: Number(form.amountLkr.value),
+            amount: Number(form.amountLkr.value),
             status: form.status.value.trim(),
-            date: form.date.value ? form.date.value : null
+            paidAt: form.date.value ? form.date.value : null
         };
 
-        if (!payload.orderId || payload.amountLkr <= 0) {
+        if (!payload.orderId || payload.amount <= 0) {
             showToast('error', 'Order ID and amount are required');
             return;
         }
@@ -451,7 +451,7 @@ function setupPaymentActions() {
             form.orderId.value = payment.orderId;
             form.amountLkr.value = payment.amountLkr;
             form.status.value = payment.status;
-            form.date.value = payment.date ? payment.date.substring(0, 16) : '';
+            form.date.value = payment.paidAt ? payment.paidAt.substring(0, 16) : '';
             modal.querySelector('h3').textContent = 'Edit Payment';
             openModal('paymentModal');
         }

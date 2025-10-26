@@ -4,6 +4,7 @@ import com.laundry.lms.model.LaundryOrder;
 import com.laundry.lms.model.OrderStatus;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 public class OrderResponse {
@@ -19,6 +20,9 @@ public class OrderResponse {
     private LocalDate pickupDate;
     private LocalDate deliveryDate;
     private String notes;
+    private String paymentMethod;
+    private String paymentStatus;
+    private Instant paidAt;
 
     public static OrderResponse from(LaundryOrder order) {
         OrderResponse response = new OrderResponse();
@@ -33,6 +37,9 @@ public class OrderResponse {
         response.setPickupDate(order.getPickupDate());
         response.setDeliveryDate(order.getDeliveryDate());
         response.setNotes(order.getNotes());
+        response.setPaymentMethod(order.getPaymentMethod());
+        response.setPaymentStatus(order.getPaymentStatus());
+        response.setPaidAt(order.getPaidAt());
         return response;
     }
 
@@ -122,5 +129,29 @@ public class OrderResponse {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public Instant getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(Instant paidAt) {
+        this.paidAt = paidAt;
     }
 }

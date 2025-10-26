@@ -1,9 +1,11 @@
 package com.laundry.lms.controller;
 
+import com.laundry.lms.dto.OrderCreateResponse;
 import com.laundry.lms.dto.OrderRequest;
 import com.laundry.lms.dto.OrderResponse;
 import com.laundry.lms.model.LaundryOrder;
 import com.laundry.lms.model.OrderStatus;
+import com.laundry.lms.model.PaymentStatus;
 import com.laundry.lms.model.User;
 import com.laundry.lms.repository.LaundryOrderRepository;
 import com.laundry.lms.repository.UserRepository;
@@ -76,8 +78,13 @@ public class OrderController {
             }
         }
 
+        order.setPaymentStatus(PaymentStatus.PENDING.name());
+        order.setPaymentMethod(null);
+        order.setPaidAt(null);
+
         LaundryOrder saved = orderRepository.save(order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponse.from(saved));
+        OrderCreateResponse response = new OrderCreateResponse(saved.getId(), String.format("/pay?orderId=%d", saved.getId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}/status")

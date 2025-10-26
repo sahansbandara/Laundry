@@ -21,6 +21,12 @@ public class PaymentRequest {
 
     private LocalDateTime paidAt;
 
+    private String provider;
+
+    private String providerRef;
+
+    private String rawPayloadJson;
+
     public Long getOrderId() {
         return orderId;
     }
@@ -59,5 +65,29 @@ public class PaymentRequest {
 
     public void setPaidAt(LocalDateTime paidAt) {
         this.paidAt = paidAt;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getProviderRef() {
+        return providerRef;
+    }
+
+    public void setProviderRef(String providerRef) {
+        this.providerRef = providerRef;
+    }
+
+    public String getRawPayloadJson() {
+        return rawPayloadJson;
+    }
+
+    public void setRawPayloadJson(String rawPayloadJson) {
+        this.rawPayloadJson = rawPayloadJson;
     }
 }

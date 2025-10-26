@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -61,6 +61,13 @@ public class DataInitializer {
                 order.setDeliveryDate(LocalDate.now().plusDays(random.nextInt(5) + 1));
                 order.setNotes("Auto-generated demo order");
                 order.setStatus(OrderStatus.values()[random.nextInt(OrderStatus.values().length)]);
+                PaymentMethod paymentMethod = random.nextBoolean() ? PaymentMethod.COD : PaymentMethod.CARD;
+                PaymentStatus paymentStatus = PaymentStatus.values()[random.nextInt(PaymentStatus.values().length)];
+                order.setPaymentMethod(paymentMethod.name());
+                order.setPaymentStatus(paymentStatus.name());
+                if (paymentStatus == PaymentStatus.PAID) {
+                    order.setPaidAt(Instant.now().minusSeconds(random.nextInt(86_400)));
+                }
                 orders.add(order);
             }
             orderRepository.saveAll(orders);
@@ -85,13 +92,15 @@ public class DataInitializer {
             for (int i = 0; i < 8; i++) {
                 LaundryOrder order = orders.get(random.nextInt(orders.size()));
                 Payment payment = new Payment();
-                payment.setOrder(order);
-                payment.setAmount(order.getPrice());
-                payment.setMethod(random.nextBoolean() ? "Cash" : "Card");
-                PaymentStatus status = PaymentStatus.values()[random.nextInt(PaymentStatus.values().length)];
+                payment.setOrderId(order.getId());
+                payment.setAmountLkr(order.getPrice());
+                PaymentMethod method = PaymentMethod.valueOf(order.getPaymentMethod());
+                payment.setMethod(method);
+                PaymentStatus status = PaymentStatus.valueOf(order.getPaymentStatus());
                 payment.setStatus(status);
-                if (status == PaymentStatus.COMPLETED) {
-                    payment.setPaidAt(LocalDateTime.now().minusDays(random.nextInt(3)));
+                payment.setProvider(method == PaymentMethod.COD ? "CASH" : "DEMO");
+                if (status == PaymentStatus.PAID) {
+                    order.setPaidAt(order.getPaidAt() != null ? order.getPaidAt() : Instant.now());
                 }
                 payments.add(payment);
             }

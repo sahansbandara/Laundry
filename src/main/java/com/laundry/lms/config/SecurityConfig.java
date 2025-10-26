@@ -18,7 +18,15 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/h2-console/**", "/api/catalog/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/h2-console/**",
+                                "/api/catalog/**",
+                                "/frontend/**",
+                                "/api/payments/cod/confirm",
+                                "/api/payments/checkout",
+                                "/api/payments/demo/webhook"
+                        ).permitAll()
                         .anyRequest().permitAll())
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .httpBasic(Customizer.withDefaults());

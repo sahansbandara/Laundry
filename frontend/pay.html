@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complete Payment</title>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="pay-page">
+<header class="pay-header">
+    <div class="container-sm">
+        <h1>Choose Your Payment Method</h1>
+        <p class="muted">All totals are shown in <strong>LKR</strong>. Complete your order securely.</p>
+    </div>
+</header>
+<main class="pay-main">
+    <div class="container-sm pay-card" id="payContainer">
+        <section class="order-preview" aria-live="polite">
+            <h2>Order Summary</h2>
+            <p id="orderSummary">Processing order…</p>
+        </section>
+        <form class="pay-methods" id="payForm">
+            <fieldset>
+                <legend>Select a payment option</legend>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="COD" />
+                    <span>
+                        <strong>Cash on Delivery (COD)</strong>
+                        <small class="muted">COD – Pay at delivery</small>
+                    </span>
+                </label>
+                <label class="pay-option">
+                    <input type="radio" name="payment" value="CARD" />
+                    <span>
+                        <strong>Card — Online (Sandbox)</strong>
+                        <small class="muted">Secure demo checkout with instant confirmation</small>
+                    </span>
+                </label>
+            </fieldset>
+            <div class="pay-actions">
+                <button type="button" class="btn-primary" id="paySubmit">Continue</button>
+                <a href="./dashboard-user.html" class="pill-ghost">Back to dashboard</a>
+            </div>
+            <p class="pay-feedback" id="payFeedback" role="status"></p>
+        </form>
+    </div>
+</main>
+<script type="module" src="./assets/pay.js"></script>
+</body>
+</html>
