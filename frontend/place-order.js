@@ -1102,7 +1102,7 @@ window.initPlaceOrder = function initPlaceOrder() {
         const notes = notesSource.length > 950 ? `${notesSource.slice(0, 947)}...` : notesSource;
 
         return {
-            customerId: user?.id,
+            customer: user?.id ? { id: user.id } : null,
             serviceType,
             quantity: quantity || 1,
             unit,
@@ -1140,7 +1140,7 @@ window.initPlaceOrder = function initPlaceOrder() {
         }
 
         const requestBody = buildOrderApiRequest(totals, payload, currentUser);
-        if (!requestBody.customerId) {
+        if (!requestBody?.customer?.id) {
             toastError("Customer details missing.");
             elements.placeOrderBtn.disabled = false;
             return;
@@ -1165,14 +1165,11 @@ window.initPlaceOrder = function initPlaceOrder() {
 
         api.post("/api/orders", requestBody)
             .then((data) => {
-                toastSuccess("Order placed successfully");
-                if (data?.next) {
-                    updateRepeatButton();
-                    window.location.assign(data.next);
-                    return;
-                }
                 updateRepeatButton();
-                applyState({ lines: [], express: false, premiumAddonCount: 0, pickupDate: "", deliveryDate: "" }, { newIds: true });
+                toastSuccess("Order placed successfully");
+                const nextUrl = data?.next ?? `/frontend/pay.html?orderId=${data?.orderId}`;
+                if (!nextUrl) throw new Error("No redirect URL from server");
+                window.location.assign(nextUrl);
             })
             .catch((err) => {
                 toastError(err?.message || "Failed to place order");
