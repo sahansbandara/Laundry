@@ -51,6 +51,23 @@ let page = 1;
 const pageSize = 5;
 let openRowMenu = null;
 
+const formatLKR = (value) => {
+    const numeric = Number.isFinite(Number(value)) ? Number(value) : 0;
+    return `LKR ${numeric.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const paymentMethodLabel = (method) => {
+    if (!method) return "—";
+    if (method === "COD") return "COD – Pay at delivery";
+    if (method === "CARD") return "Card — Online";
+    return method;
+};
+
+const paymentStatusBadge = (status) => {
+    const value = status ? status.toUpperCase() : "PENDING";
+    return renderStatusBadge(value);
+};
+
 /* --- Logout --- */
 logoutBtn?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -200,25 +217,37 @@ function renderOrders() {
     const end   = Math.min(start + pageSize, filtered.length);
     const slice = filtered.slice(start, end);
 
-    ordersBody.innerHTML = slice.map((o) => `
-    <tr>
-      <td>#${o.id}</td>
-      <td>${o.serviceType}</td>
-      <td>${o.quantity}</td>
-      <td>${Number(o.price).toLocaleString()}</td>
-      <td>${renderStatusBadge(o.status)}</td>
-      <td>${o.pickupDate || "-"}</td>
-      <td>${o.deliveryDate || "-"}</td>
-      <td class="order-actions">
-        <button class="row-menu" type="button" aria-haspopup="true" aria-expanded="false" data-order-id="${o.id}" aria-label="Open actions for order #${o.id}">⋮</button>
-        <div class="menu-popover" data-order-id="${o.id}" hidden role="menu">
-          <button type="button" class="row-action" data-action="view" data-order-id="${o.id}" role="menuitem">View</button>
-          <button type="button" class="row-action" data-action="repeat" data-order-id="${o.id}" role="menuitem">Repeat</button>
-          <button type="button" class="row-action" data-action="cancel" data-order-id="${o.id}" role="menuitem">Cancel</button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
+    ordersBody.innerHTML = slice
+        .map((o) => {
+            const showPayNow = o.paymentMethod === "CARD" && (!o.paymentStatus || o.paymentStatus === "PENDING");
+            const paymentCell = paymentMethodLabel(o.paymentMethod);
+            const paymentStatus = paymentStatusBadge(o.paymentStatus);
+            const payButton = showPayNow
+                ? `<button type="button" class="pay-now-btn" data-pay-order="${o.id}">Pay Now — Online (Sandbox)</button>`
+                : "";
+            return `
+        <tr>
+          <td>#${o.id}</td>
+          <td>${o.serviceType}</td>
+          <td>${o.quantity}</td>
+          <td>${formatLKR(o.price)}</td>
+          <td>${renderStatusBadge(o.status)}</td>
+          <td>${paymentCell}</td>
+          <td>${paymentStatus}</td>
+          <td>${o.pickupDate || "-"}</td>
+          <td>${o.deliveryDate || "-"}</td>
+          <td class="order-actions">
+            ${payButton}
+            <button class="row-menu" type="button" aria-haspopup="true" aria-expanded="false" data-order-id="${o.id}" aria-label="Open actions for order #${o.id}">⋮</button>
+            <div class="menu-popover" data-order-id="${o.id}" hidden role="menu">
+              <button type="button" class="row-action" data-action="view" data-order-id="${o.id}" role="menuitem">View</button>
+              <button type="button" class="row-action" data-action="repeat" data-order-id="${o.id}" role="menuitem">Repeat</button>
+              <button type="button" class="row-action" data-action="cancel" data-order-id="${o.id}" role="menuitem">Cancel</button>
+            </div>
+          </td>
+        </tr>`;
+        })
+        .join("");
 
     pageInfo.textContent = `Showing ${filtered.length ? start + 1 : 0}–${end} of ${filtered.length}`;
 }
@@ -238,6 +267,33 @@ orderSearch?.addEventListener("input", () => { page = 1; applyFilters(); });
 orderStatus?.addEventListener("change", () => { page = 1; applyFilters(); });
 
 ordersBody?.addEventListener("click", (e) => {
+    const payNowBtn = e.target.closest(".pay-now-btn");
+    if (payNowBtn) {
+        e.preventDefault();
+        const orderId = payNowBtn.dataset.payOrder;
+        if (!orderId) return;
+        const originalText = payNowBtn.textContent;
+        payNowBtn.disabled = true;
+        payNowBtn.textContent = "Redirecting…";
+        api.post("/api/payments/checkout", { orderId: Number(orderId) })
+            .then((data) => {
+                if (data?.redirectUrl) {
+                    window.location.assign(data.redirectUrl);
+                    return;
+                }
+                toastError("Unable to start checkout");
+                payNowBtn.disabled = false;
+            })
+            .catch((err) => {
+                toastError(err?.message || "Checkout failed");
+                payNowBtn.disabled = false;
+            })
+            .finally(() => {
+                payNowBtn.textContent = originalText;
+            });
+        return;
+    }
+
     const menuBtn = e.target.closest(".row-menu");
     if (menuBtn) {
         e.stopPropagation();

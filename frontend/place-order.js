@@ -1,3 +1,5 @@
+import { api, getCurrentUser, toastError, toastSuccess } from "./common.js";
+
 const RATES = {
     laundryPerKg: 250,
     dryCleaningPerKg: 400,
@@ -1055,6 +1057,62 @@ window.initPlaceOrder = function initPlaceOrder() {
         };
     };
 
+    const buildOrderApiRequest = (totals, payload, user) => {
+        const aggregate = state.lines.reduce(
+            (acc, line) => {
+                if (typeof line.weight === "number") {
+                    acc.weight += Number.isFinite(line.weight) ? line.weight : 0;
+                }
+                if (Array.isArray(line.categories)) {
+                    line.categories.forEach((cat) => {
+                        acc.count += Number.isFinite(cat.qty) ? cat.qty : 0;
+                    });
+                }
+                if (typeof line.count === "number") {
+                    acc.count += Number.isFinite(line.count) ? line.count : 0;
+                }
+                if (typeof line.quantity === "number") {
+                    acc.count += Number.isFinite(line.quantity) ? line.quantity : 0;
+                }
+                if (!line.weight && !line.count && !Array.isArray(line.categories)) {
+                    acc.count += 1;
+                }
+                return acc;
+            },
+            { weight: 0, count: 0 },
+        );
+
+        const quantity = (() => {
+            if (aggregate.weight > 0) return Number(aggregate.weight.toFixed(2));
+            if (aggregate.count > 0) return Number(aggregate.count.toFixed(2));
+            return 1;
+        })();
+
+        const unit = (() => {
+            if (aggregate.weight > 0) return "KG";
+            if (aggregate.count > 0) return "ITEMS";
+            return "BUNDLE";
+        })();
+
+        const serviceType = state.lines.length === 1 ? getLineTitle(state.lines[0]) : "Custom Laundry Bundle";
+        const pickupDate = elements.pickupInput.value ? elements.pickupInput.value.slice(0, 10) : null;
+        const deliveryDate = elements.deliveryInput.value ? elements.deliveryInput.value.slice(0, 10) : null;
+
+        const notesSource = JSON.stringify(payload.items ?? []);
+        const notes = notesSource.length > 950 ? `${notesSource.slice(0, 947)}...` : notesSource;
+
+        return {
+            customerId: user?.id,
+            serviceType,
+            quantity: quantity || 1,
+            unit,
+            price: Number(totals.total.toFixed(2)),
+            pickupDate: pickupDate || null,
+            deliveryDate: deliveryDate || null,
+            notes,
+        };
+    };
+
     const handleSubmit = () => {
         const dateState = validateDates({ displayErrors: true });
         const totals = computeTotals();
@@ -1074,6 +1132,22 @@ window.initPlaceOrder = function initPlaceOrder() {
             }),
         );
 
+        const currentUser = getCurrentUser();
+        if (!currentUser?.id) {
+            toastError("Please sign in again to place your order.");
+            elements.placeOrderBtn.disabled = false;
+            return;
+        }
+
+        const requestBody = buildOrderApiRequest(totals, payload, currentUser);
+        if (!requestBody.customerId) {
+            toastError("Customer details missing.");
+            elements.placeOrderBtn.disabled = false;
+            return;
+        }
+
+        elements.placeOrderBtn.disabled = true;
+
         if (safeStorage) {
             const snapshot = {
                 lines: state.lines.map((line) => cloneLine(line)),
@@ -1086,9 +1160,28 @@ window.initPlaceOrder = function initPlaceOrder() {
             safeStorage.removeItem(STORAGE_KEYS.draft);
         }
 
-        updateRepeatButton();
-        window.alert?.("Order placed successfully!");
-        applyState({ lines: [], express: false, premiumAddonCount: 0, pickupDate: "", deliveryDate: "" }, { newIds: true });
+        const originalLabel = elements.placeOrderBtn.textContent;
+        elements.placeOrderBtn.textContent = "Processing…";
+
+        api.post("/api/orders", requestBody)
+            .then((data) => {
+                toastSuccess("Order placed successfully");
+                if (data?.next) {
+                    updateRepeatButton();
+                    window.location.assign(data.next);
+                    return;
+                }
+                updateRepeatButton();
+                applyState({ lines: [], express: false, premiumAddonCount: 0, pickupDate: "", deliveryDate: "" }, { newIds: true });
+            })
+            .catch((err) => {
+                toastError(err?.message || "Failed to place order");
+                elements.placeOrderBtn.disabled = false;
+            })
+            .finally(() => {
+                elements.placeOrderBtn.disabled = false;
+                elements.placeOrderBtn.textContent = originalLabel;
+            });
     };
 
     document.querySelectorAll(".service-card .primary-btn").forEach((btn) => {

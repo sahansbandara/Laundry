@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "orders")
@@ -45,6 +46,12 @@ public class LaundryOrder {
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.PENDING;
 
+    private String paymentMethod;
+
+    private String paymentStatus = PaymentStatus.PENDING.name();
+
+    private Instant paidAt;
+
     private LocalDate pickupDate;
     private LocalDate deliveryDate;
 
@@ -62,6 +69,9 @@ public class LaundryOrder {
         this.createdAt = LocalDateTime.now();
         if (this.status == null) {
             this.status = OrderStatus.PENDING;
+        }
+        if (this.paymentStatus == null) {
+            this.paymentStatus = PaymentStatus.PENDING.name();
         }
     }
 
@@ -119,6 +129,30 @@ public class LaundryOrder {
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public Instant getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(Instant paidAt) {
+        this.paidAt = paidAt;
     }
 
     public LocalDate getPickupDate() {
