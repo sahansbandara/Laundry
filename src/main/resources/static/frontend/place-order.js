@@ -1167,7 +1167,8 @@ window.initPlaceOrder = function initPlaceOrder() {
             .then((data) => {
                 updateRepeatButton();
                 toastSuccess("Order placed successfully");
-                const nextUrl = data?.next ?? `/frontend/pay.html?orderId=${data?.orderId}`;
+                const id = data?.orderId ?? data?.id;
+                const nextUrl = data?.next ?? (id ? `/frontend/pay.html?orderId=${id}` : null);
                 if (!nextUrl) throw new Error("No redirect URL from server");
                 window.location.assign(nextUrl);
             })
