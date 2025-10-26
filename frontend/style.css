@@ -286,7 +286,7 @@ tbody tr:nth-child(even) td{background:rgba(37,99,235,.06)}
 .badge-danger{background:rgba(248,113,113,.2);color:#b91c1c;border-radius:999px;padding:4px 10px;font-size:.8rem;font-weight:600}
 
 .kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-.sticky-card{position:sticky;top:calc(var(--navbar-height)+24px)}
+.sticky-card{position:sticky;top:calc(var(--navbar-height) + 24px)}
 
 .stack{display:flex;flex-direction:column}
 .gap-md{gap:16px}
@@ -313,7 +313,7 @@ tbody tr:nth-child(even) td{background:rgba(37,99,235,.06)}
 .service-card .price{font-weight:700;color:var(--heading)}
 .service-card .btn-primary{margin-top:8px;align-self:flex-start}
 
-.summary-panel{position:sticky;top:calc(var(--navbar-height)+20px);display:flex;flex-direction:column;gap:18px}
+.summary-panel{position:sticky;top:calc(var(--navbar-height) + 20px);display:flex;flex-direction:column;gap:18px}
 .summary-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .repeat-pill{box-shadow:none;padding:8px 16px;font-weight:600}
 .field-group{display:flex;flex-direction:column;gap:8px}
@@ -341,7 +341,7 @@ tbody tr:nth-child(even) td{background:rgba(37,99,235,.06)}
 #placeOrderMount>main{display:block;padding:0}
 #placeOrderMount .service-menu{background:transparent;box-shadow:none;padding:0}
 #placeOrderMount .service-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-#placeOrderMount .summary-panel{position:sticky;top:calc(var(--navbar-height)+20px);box-shadow:0 18px 42px rgba(37,99,235,.12)}
+#placeOrderMount .summary-panel{position:sticky;top:calc(var(--navbar-height) + 20px);box-shadow:0 18px 42px rgba(37,99,235,.12)}
 #placeOrderMount .summary-panel .place-order-btn{margin-top:auto}
 
 
